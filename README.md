@@ -10,12 +10,10 @@ This SDK is a port of the more popular [BrianPeek/legoev3](https://github.com/Br
 
 - Make sure, iOS compatibility is enabled on the ev3
 
-![ev3-enable-bluetooth.png](https://bitbucket.org/repo/LBogR5/images/4249027045-ev3-enable-bluetooth.png)
-
 - Add the Ev3 Protocol to the 'info.plist'
-- add row (if 'Supported external accessory protocols' not exists)
-- choose 'Supported external accessory protocols'
-- Set value for Item # to 'COM.LEGO.MINDSTORMS.EV3'
+    - add row (if 'Supported external accessory protocols' not exists)
+    - choose 'Supported external accessory protocols'
+    - Set value for Item # to 'COM.LEGO.MINDSTORMS.EV3'
 
 ## Connect with EV3
 
@@ -44,55 +42,55 @@ EAAccessoryManager.sharedAccessoryManager().showBluetoothAccessoryPickerWithName
 In case a accessory has connected to the iOS device.
 ```swift
 @objc private func accessoryConnected(notification: NSNotification) {
-print("EAController::accessoryConnected")
+    print("EAController::accessoryConnected")
 
-let connectedAccessory = notification.userInfo![EAAccessoryKey] as! EAAccessory
+    let connectedAccessory = notification.userInfo![EAAccessoryKey] as! EAAccessory
 
-// check if the device is a ev3    
-if !Ev3Connection.supportsEv3Protocol(connectedAccessory) {
-return
-}
+    // check if the device is a ev3    
+    if !Ev3Connection.supportsEv3Protocol(connectedAccessory) {
+        return
+    }
 
-connect(connectedAccessory)
+    connect(connectedAccessory)
 }
 ``` 
 
 In case a accessory has disconnected from the iOS device.
 ```swift
 @objc private func accessoryDisconnected(notification: NSNotification) {
-print("EAController::accessoryDisconnected")
-let connectedAccessory = notification.userInfo![EAAccessoryKey] as! EAAccessory
+    print("EAController::accessoryDisconnected")
+    let connectedAccessory = notification.userInfo![EAAccessoryKey] as! EAAccessory
 
-// check if the device is a ev3
-if !Ev3Connection.supportsEv3Protocol(connectedAccessory) {
-return
-}
+    // check if the device is a ev3
+    if !Ev3Connection.supportsEv3Protocol(connectedAccessory) {
+        return
+    }
 
-disconnect()
+    disconnect()
 }
 ``` 
 
 In case, the EV3 is already connected to the iOS device just loop over the connected 'EAAccessory'
 ```swift
 private func getEv3Accessory() -> EAAccessory? {
-let man = EAAccessoryManager.sharedAccessoryManager()
-let connected = man.connectedAccessories
+    let man = EAAccessoryManager.sharedAccessoryManager()
+    let connected = man.connectedAccessories
 
-for tmpAccessory in connected{
-if Ev3Connection.supportsEv3Protocol(tmpAccessory){
-return tmpAccessory
-}
-}
-return nil
+    for tmpAccessory in connected{
+        if Ev3Connection.supportsEv3Protocol(tmpAccessory){
+            return tmpAccessory
+        }
+    }
+    return nil
 }
 ```
 
 Once you have optained the EAAcessory for the EV3 you can create a EV3Connection and start communicating with the EV3 
 ```swift
 private func connect(accessory: EAAccessory){
-connection = Ev3Connection(accessory: accessory)
-brick = Ev3Brick(connection: connection!)
-connection?.open()
+    connection = Ev3Connection(accessory: accessory)
+    brick = Ev3Brick(connection: connection!)
+    connection?.open()
 }
 ``` 
 
@@ -132,16 +130,16 @@ It is also possible to receive some informations from the Ev3 e.g. Sensor Data (
 
 ```swift
 brick?.directCommand.getBatteryLevel({ (level: UInt8?) in
-let lev = level == nil ? "--" : String(level!)
-self.batEv3Text.text = lev + " %"
+    let lev = level == nil ? "--" : String(level!)
+    self.batEv3Text.text = lev + " %"
 })
 ```
 
 ```swift
 brick?.directCommand.getFirmwareVersion({ (fmw: String?) in
-if (fmw != nil) {
-self.infoEV3Text.text = "Firmware: \(fmw!)"
-}
+    if (fmw != nil) {
+        self.infoEV3Text.text = "Firmware: \(fmw!)"
+    }
 })
 ```
 
@@ -176,21 +174,21 @@ If data is read from the EASession.inputStream, it is stored in the Ev3ResponseM
 
 ```swift
 public func getFirmwareVersion(receivedFirmware: (String?) -> Void){
-let c = Ev3Command(commandType: .DirectReply, globalSize: 0x10, localSize: 0)
+    let c = Ev3Command(commandType: .DirectReply, globalSize: 0x10, localSize: 0)
 
-// length and index in response
-c.getFirwmareVersion(0x10, index: 0)
-c.response?.responseReceivedCallback = {
-if(c.response?.data == nil){
-receivedFirmware(nil)
-}
-else if let str = String(data: c.response!.data!, encoding: NSUTF8StringEncoding) {
-receivedFirmware(str)
-} else {
-receivedFirmware(nil)
-}}
+    // length and index in response
+    c.getFirwmareVersion(0x10, index: 0)
+    c.response?.responseReceivedCallback = {
+    if(c.response?.data == nil){
+        receivedFirmware(nil)
+    }
+    else if let str = String(data: c.response!.data!, encoding: NSUTF8StringEncoding) {
+        receivedFirmware(str)
+    } else {
+        receivedFirmware(nil)
+    }}
 
-brick.sendCommand(c)
+    brick.sendCommand(c)
 }
 ```
 
