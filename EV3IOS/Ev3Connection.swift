@@ -28,7 +28,7 @@ public protocol Ev3ConnectionChangedDelegate: class {
  
  - Sometimes the first command is executed twice, but it is definitly send only once by this app
  */
-public class Ev3Connection : NSObject, NSStreamDelegate{
+public class Ev3Connection : NSObject, StreamDelegate {
     
     var accessory: EAAccessory
     var session: EASession?
@@ -54,10 +54,11 @@ public class Ev3Connection : NSObject, NSStreamDelegate{
     private var canWrite = true
     
     /// trying to handle all messages in a another queue
-    private var queue = dispatch_queue_create("com.ev3ios.connection.queue", DISPATCH_QUEUE_SERIAL)
+    private let queue = DispatchQueue(label: "com.ev3ios.connection.queue")
+    
     
     /// buffer for the input stream size, with size of 2
-    private var sizeBuffer = [UInt8](count: 2, repeatedValue: 0x00)
+    private var sizeBuffer = [UInt8](repeating: 0x00, count: 2)
     
     /// buffer for appending data to write e.g. if currently no space
     /// is available on the stream
@@ -81,22 +82,22 @@ public class Ev3Connection : NSObject, NSStreamDelegate{
         session = EASession(accessory: self.accessory, forProtocol: Ev3Constants.supportedProtocol)
         
         session!.outputStream!.delegate = self
-        session!.outputStream!.scheduleInRunLoop(NSRunLoop.mainRunLoop(), forMode: NSDefaultRunLoopMode)
+        session!.outputStream!.schedule(in: RunLoop.main, forMode: RunLoopMode.commonModes)
         session!.outputStream!.open()
         
         session!.inputStream!.delegate = self
-        session!.inputStream!.scheduleInRunLoop(NSRunLoop.mainRunLoop(), forMode: NSDefaultRunLoopMode)
+        session!.inputStream!.schedule(in: RunLoop.main, forMode: RunLoopMode.commonModes)
         session!.inputStream!.open()
         
         isClosed = false
         
         for del in self.connectionChangedDelegates{
-            del.ev3ConnectionChanged(true)
+            del.ev3ConnectionChanged(connected: true)
         }
     }
     
     /// delegate for receiving reports received from the input stream
-    func addEv3ReportDelegate(delegate: Ev3ReportDelegate) {
+    func addEv3ReportDelegate(_ delegate: Ev3ReportDelegate) {
         reportReceivedDelegates.append(delegate)
     }
     
@@ -112,15 +113,15 @@ public class Ev3Connection : NSObject, NSStreamDelegate{
         }
         
         for del in self.connectionChangedDelegates{
-            del.ev3ConnectionChanged(false)
+            del.ev3ConnectionChanged(connected: false)
         }
         
         session?.outputStream?.close()
-        session?.outputStream?.removeFromRunLoop(NSRunLoop.mainRunLoop(), forMode: NSDefaultRunLoopMode)
+        session?.outputStream?.remove(from: RunLoop.main, forMode: RunLoopMode.defaultRunLoopMode)
         session?.outputStream?.delegate = nil
         
         session?.inputStream?.close()
-        session?.inputStream?.removeFromRunLoop(NSRunLoop.mainRunLoop(), forMode: NSDefaultRunLoopMode)
+        session?.inputStream?.remove(from: RunLoop.main, forMode: RunLoopMode.defaultRunLoopMode)
         session?.inputStream?.delegate = nil
         
         isClosed = true
@@ -142,12 +143,13 @@ public class Ev3Connection : NSObject, NSStreamDelegate{
             return
         }
         
-        let mData = writeBuffer.removeAtIndex(0)
+        let mData = writeBuffer.remove(at: 0)
         
         print("Writing data: ")
-        print(ByteTools.asHexString(mData))
+        print(ByteTools.asHexString(data: mData))
         
-        var bytes = UnsafePointer<UInt8>(mData.bytes)
+        var bytes = mData.bytes.bindMemory(to: UInt8.self, capacity: mData.length)
+
         var bytesLeftToWrite: NSInteger = mData.length
         
         let bytesWritten = session?.outputStream?.write(bytes, maxLength: bytesLeftToWrite)
@@ -158,41 +160,42 @@ public class Ev3Connection : NSObject, NSStreamDelegate{
         }
         
         bytesLeftToWrite -= bytesWritten!
-        bytes += bytesWritten! // advance pointer
+        bytes = bytes.advanced(by: bytesWritten!)
         
         if bytesLeftToWrite > 0 {
             print("error: not enough space in stream")
-            writeBuffer.insert(NSData(bytes: bytes, length: bytesLeftToWrite), atIndex: 0)
+            writeBuffer.insert(NSData(bytes: &bytes, length: bytesLeftToWrite), at: 0)
 
         }
         
         print("bytes written \(bytesWritten)")
         print("write buffer size: \(writeBuffer.count)")
-        NSThread.sleepForTimeInterval(connSleepTime) //give the ev3 time - too much traffic will disconnect the bt connection
+        Thread.sleep(forTimeInterval: connSleepTime) //give the ev3 time - too much traffic will disconnect the bt connection
     }
     
     /// writes data to the output stream of a accessory. the operation is handled on a own serial queue, 
     /// so that no concurrent write ops should happen
-    private func write(mData: NSData) {
-        dispatch_async(queue, {
+    private func write(data: NSData) {
+        DispatchQueue(label: "com.ev3ios.connection.queue").async {
             self.dismissCommandsIfNeeded()
             
-            self.writeBuffer.append(mData)
+            self.writeBuffer.append(data)
             if self.canWrite {
                 self.write()
-            }})
+            }
+        }
     }
     
     /// write a command to the outputstream
     func write(command: Ev3Command) {
-        write(command.toBytes())
+        write(data: command.toBytes())
     }
     
     /// cleares the writebuffer if it exceeds a given maximum
     private func dismissCommandsIfNeeded(){
         if( writeBuffer.count > maxBufferSize){
             for _ in 1...maxBufferSize {
-                writeBuffer.removeAtIndex(1)
+                writeBuffer.remove(at: 1)
             }
             print("cleared write buffer")
         }
@@ -205,23 +208,23 @@ public class Ev3Connection : NSObject, NSStreamDelegate{
         
         var result = session?.inputStream?.read(&sizeBuffer, maxLength: sizeBuffer.count)
         
-        if(result > 0) {
+        if(result! > 0) {
             // buffer contains result bytes of data to be handled
             let size: Int16 = Int16(sizeBuffer[1]) << 8 | Int16(sizeBuffer[0])
             
             if size > 0 {
-                var buffer = [UInt8](count: Int(size), repeatedValue: 0x00)
+                var buffer = [UInt8](repeating: 0x00, count: Int(size))
                 result = session?.inputStream?.read(&buffer, maxLength: buffer.count)
                 
-                if result < 1 {
+                if result! < 1 {
                     print("error reading the input data with size: \(size)")
                     return
                 }
                 
                 print("read data:")
-                print(ByteTools.asHexString(NSData(bytes: buffer, length: buffer.count)))
+                print(ByteTools.asHexString(data: NSData(bytes: buffer, length: buffer.count)))
 
-                reportReceived(buffer)
+                reportReceived(report: buffer)
 
             }
             else{
@@ -235,28 +238,28 @@ public class Ev3Connection : NSObject, NSStreamDelegate{
     
     /// delegates for receiving the events for the input and outputstream
     /// reading and writing ops are dispatched to a serial queue.
-    public func stream(aStream: NSStream, handleEvent eventCode: NSStreamEvent){
+    public func stream(_ aStream: Stream, handle eventCode: Stream.Event){
         switch eventCode {
        
-        case NSStreamEvent.HasBytesAvailable:
-            dispatch_async(queue, {
+        case Stream.Event.hasBytesAvailable:
+            DispatchQueue(label: "com.ev3ios.connection.queue").async {
                 self.readInBackground()
-            })
+            }
             break
             
-        case NSStreamEvent.HasSpaceAvailable:
-                dispatch_async(queue, {
-                    self.canWrite = true
-                    self.write()
-                })
+        case Stream.Event.hasSpaceAvailable:
+            DispatchQueue(label: "com.ev3ios.connection.queue").async {
+                self.canWrite = true
+                self.write()
+            }
 
             break
             
-        case NSStreamEvent.OpenCompleted:
+        case Stream.Event.openCompleted:
             print("stream opened")
             break
             
-        case NSStreamEvent.ErrorOccurred:
+        case Stream.Event.errorOccurred:
              print("error on stream")
             break
             
@@ -269,11 +272,11 @@ public class Ev3Connection : NSObject, NSStreamDelegate{
     
     //if running in background, this must be dispatched to the main queue
     private func reportReceived(report: [UInt8]){
-        dispatch_async(dispatch_get_main_queue(), {
+        DispatchQueue.main.async {
             for delegate in self.reportReceivedDelegates {
-                delegate.reportReceived(report)
+                delegate.reportReceived(report: report)
             }
-        })
+        }
     }
 
 }

@@ -58,11 +58,11 @@ class Ev3ResponseManager {
             r.replyType = rt
         }
         
-        if(r.replyType != nil && ( r.replyType == .DirectReply || r.replyType == .DirectReplyError)) {
+        if(r.replyType != nil && ( r.replyType == .directReply || r.replyType == .directReplyError)) {
             let tmp = NSData(bytes: report, length: report.count)
-            r.data = tmp.subdataWithRange(NSRange(location: 3, length: report.count - 3))
+            r.data = tmp.subdata(with: NSRange(location: 3, length: report.count - 3)) as NSData?
         }
-        else if (r.replyType != nil && (r.replyType == .SystemReply || r.replyType == .SystemReplyError )){
+        else if (r.replyType != nil && (r.replyType == .systemReply || r.replyType == .systemReplyError )){
             if let oc = SystemOpcode(rawValue: report[3]){
                 r.systemCommand = oc
             }
@@ -72,7 +72,7 @@ class Ev3ResponseManager {
             }
             
             let tmp = NSData(bytes: report, length: report.count)
-            r.data = tmp.subdataWithRange(NSRange(location: 5, length: report.count - 5))
+            r.data = tmp.subdata(with: NSRange(location: 5, length: report.count - 5)) as NSData?
     
         }
         

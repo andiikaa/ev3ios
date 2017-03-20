@@ -14,14 +14,14 @@ public protocol Ev3BrickChangedDelegate {
 
 public class Ev3Brick : Ev3ReportDelegate, Ev3ConnectionChangedDelegate {
     /// Interval for polling brick infos
-    private let timeInterval: NSTimeInterval = 2.0
+    private let timeInterval: TimeInterval = 2.0
     
     /// The connection on which the app can read/write data
     private let connection: Ev3Connection
     
     private let alwaysSendEvents: Bool
     
-    private var timer: NSTimer?
+    private var timer: Timer?
     
     /// Send "direct commands" to the EV3 brick.  These commands are executed instantly and are not batched.
     public var directCommand: Ev3DirectCommand!
@@ -75,7 +75,7 @@ public class Ev3Brick : Ev3ReportDelegate, Ev3ConnectionChangedDelegate {
         
         for port in InputPort.allValues {
             let p = Ev3Port()
-            p.index = InputPort.allValues.indexOf(port)
+            p.index = InputPort.allValues.index(of: port)
             p.inputPort = port
             
             //TODO set name
@@ -89,7 +89,7 @@ public class Ev3Brick : Ev3ReportDelegate, Ev3ConnectionChangedDelegate {
         if !connected{
             timer?.invalidate()
         }
-        else if (timer == nil || !timer!.valid) {
+        else if (timer == nil || !timer!.isValid) {
             
             // schedule new timer
             /*timer = NSTimer.scheduledTimerWithTimeInterval(timeInterval, target: self, selector: #selector(Ev3Brick.pollSensorsAsync), userInfo: nil, repeats: true)
@@ -98,11 +98,11 @@ public class Ev3Brick : Ev3ReportDelegate, Ev3ConnectionChangedDelegate {
     }
     
     func reportReceived(report: [UInt8]){
-        Ev3ResponseManager.handleResponse(report)
+        Ev3ResponseManager.handleResponse(report: report)
     }
     
-    func sendCommand(command: Ev3Command){
-        connection.write(command)
+    func sendCommand(_ command: Ev3Command){
+        connection.write(command: command)
     }
     
     func closeConnection(){
@@ -113,30 +113,30 @@ public class Ev3Brick : Ev3ReportDelegate, Ev3ConnectionChangedDelegate {
     @objc public func pollSensorsAsync() {
         var index = 0;
         
-        let c = Ev3Command(commandType: CommandType.DirectReply, globalSize: UInt16((8 * responseSize) + 6), localSize: 0)
+        let c = Ev3Command(commandType: CommandType.directReply, globalSize: UInt16((8 * responseSize) + 6), localSize: 0)
         
         for port in InputPort.allValues {
             let p = ports[port]
             index = p!.index! * responseSize;
             
-            c.getTypeMode(p!.inputPort!, typeIndex: index, modeIndex: index + 1)
-            c.readySI(p!.inputPort!, mode: p!.mode, index: index + 2)
-            c.readyRaw(p!.inputPort!, mode: p!.mode, index: index + 6)
-            c.readyPercent(p!.inputPort!, mode: p!.mode, index: index + 10)
+            c.getTypeMode(port: p!.inputPort!, typeIndex: index, modeIndex: index + 1)
+            c.readySI(port: p!.inputPort!, mode: p!.mode, index: index + 2)
+            c.readyRaw(port: p!.inputPort!, mode: p!.mode, index: index + 6)
+            c.readyPercent(port: p!.inputPort!, mode: p!.mode, index: index + 10)
         }        
     
         index += responseSize;
     
-        c.isBrickButtonPressed(BrickButton.Back,  index: index + 0);
-        c.isBrickButtonPressed(BrickButton.Left,  index: index + 1);
-        c.isBrickButtonPressed(BrickButton.Up,    index: index + 2);
-        c.isBrickButtonPressed(BrickButton.Right, index: index + 3);
-        c.isBrickButtonPressed(BrickButton.Down,  index: index + 4);
-        c.isBrickButtonPressed(BrickButton.Enter, index: index + 5);
+        c.isBrickButtonPressed(button: BrickButton.back,  index: index + 0);
+        c.isBrickButtonPressed(button: BrickButton.left,  index: index + 1);
+        c.isBrickButtonPressed(button: BrickButton.up,    index: index + 2);
+        c.isBrickButtonPressed(button: BrickButton.right, index: index + 3);
+        c.isBrickButtonPressed(button: BrickButton.down,  index: index + 4);
+        c.isBrickButtonPressed(button: BrickButton.enter, index: index + 5);
         
         c.response?.responseReceivedCallback = {
             if c.response?.data != nil {
-                self.backgroundDataReceived(c.response!, index)
+                self.backgroundDataReceived(response: c.response!, index)
             }
         }
     
@@ -149,15 +149,15 @@ public class Ev3Brick : Ev3ReportDelegate, Ev3ConnectionChangedDelegate {
         for i in InputPort.allValues{
             let p = ports[i]
             
-            let type: UInt8 = convertToUInt8(response.data!, position: (p!.index! * responseSize) + 0)
+            let type: UInt8 = convertToUInt8(data: response.data!, position: (p!.index! * responseSize) + 0)
             
             //TODO is mode used?
             //let mode: UInt8 = convertToUInt8(c.response!.data!, position: (p!.index! * responseSize) + 1)
             
-            let siValue: Float = convertToFloat(response.data!, position: (p!.index! * responseSize) + 2)
-            let rawValue: Int32 = convertToInt32(response.data!, position: (p!.index! * responseSize) + 6)
+            let siValue: Float = convertToFloat(data: response.data!, position: (p!.index! * responseSize) + 2)
+            let rawValue: Int32 = convertToInt32(data: response.data!, position: (p!.index! * responseSize) + 6)
             
-            let percentValue: UInt8 = convertToUInt8(response.data!, position: (p!.index! * responseSize) + 10)
+            let percentValue: UInt8 = convertToUInt8(data: response.data!, position: (p!.index! * responseSize) + 10)
             
             if p!.type?.rawValue != type || abs(p!.siValue! - siValue) > 0.01 || p!.rawValue != rawValue || p!.percentValue != percentValue {
                 changed = true
@@ -167,7 +167,7 @@ public class Ev3Brick : Ev3ReportDelegate, Ev3ConnectionChangedDelegate {
                 p!.type = t
             }
             else{
-                p!.type = DeviceType.Unknown
+                p!.type = DeviceType.unknown
             }
             
             p!.siValue = siValue
@@ -176,22 +176,22 @@ public class Ev3Brick : Ev3ReportDelegate, Ev3ConnectionChangedDelegate {
         }
 
         
-        if buttons.back != (convertToUInt8(response.data!, position: index + 0) == 1) ||
-            buttons.left != (convertToUInt8(response.data!, position: index + 1) == 1) ||
-            buttons.up != (convertToUInt8(response.data!, position: index + 2) == 1) ||
-            buttons.right != (convertToUInt8(response.data!, position: index + 3) == 1) ||
-            buttons.down != (convertToUInt8(response.data!, position: index + 4) == 1) ||
-            buttons.enter != (convertToUInt8(response.data!, position: index + 5) == 1)
+        if buttons.back != (convertToUInt8(data: response.data!, position: index + 0) == 1) ||
+            buttons.left != (convertToUInt8(data: response.data!, position: index + 1) == 1) ||
+            buttons.up != (convertToUInt8(data: response.data!, position: index + 2) == 1) ||
+            buttons.right != (convertToUInt8(data: response.data!, position: index + 3) == 1) ||
+            buttons.down != (convertToUInt8(data: response.data!, position: index + 4) == 1) ||
+            buttons.enter != (convertToUInt8(data: response.data!, position: index + 5) == 1)
         {
             changed = true
         }
         
-        buttons.back = (convertToUInt8(response.data!, position: index + 0) == 1)
-        buttons.left = (convertToUInt8(response.data!, position: index + 1) == 1)
-        buttons.up = (convertToUInt8(response.data!, position: index + 2) == 1)
-        buttons.right = (convertToUInt8(response.data!, position: index + 3) == 1)
-        buttons.down = (convertToUInt8(response.data!, position: index + 4) == 1)
-        buttons.enter = (convertToUInt8(response.data!, position: index + 5) == 1)
+        buttons.back = (convertToUInt8(data: response.data!, position: index + 0) == 1)
+        buttons.left = (convertToUInt8(data: response.data!, position: index + 1) == 1)
+        buttons.up = (convertToUInt8(data: response.data!, position: index + 2) == 1)
+        buttons.right = (convertToUInt8(data: response.data!, position: index + 3) == 1)
+        buttons.down = (convertToUInt8(data: response.data!, position: index + 4) == 1)
+        buttons.enter = (convertToUInt8(data: response.data!, position: index + 5) == 1)
         
         if changed || alwaysSendEvents {
             for del in brickChangedDelegates {

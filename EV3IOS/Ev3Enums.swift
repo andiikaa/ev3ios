@@ -11,195 +11,195 @@ import Foundation
 
 enum ArgumentSize : UInt8
 {
-    case Byte = 0x81	// 1 byte
-    case Short = 0x82	// 2 bytes
-    case Int = 0x83		// 4 bytes
-    case String = 0x84	// null-terminated string
+    case byte = 0x81	// 1 byte
+    case short = 0x82	// 2 bytes
+    case int = 0x83		// 4 bytes
+    case string = 0x84	// null-terminated string
 }
 
 public enum ReplyType : UInt8
 {
-    case DirectReply = 0x02
-    case SystemReply = 0x03
-    case DirectReplyError = 0x04
-    case SystemReplyError = 0x05
+    case directReply = 0x02
+    case systemReply = 0x03
+    case directReplyError = 0x04
+    case systemReplyError = 0x05
 }
 
 enum Opcode : UInt16
 {
-    case ProgramStart = 0x03
-    case ProgramStop = 0x02
+    case programStart = 0x03
+    case programStop = 0x02
     
-    case UIRead_GetFirmware = 0x810a
-    case UIRead_GetVBatt    = 0x8101
-    case UIRead_GetLBatt    = 0x8112
+    case uiRead_GetFirmware = 0x810a
+    case uiRead_GetVBatt    = 0x8101
+    case uiRead_GetLBatt    = 0x8112
     
-    case UIWrite_LED = 0x821b
+    case uiWrite_LED = 0x821b
     
-    case UIButton_Pressed = 0x8309
+    case uiButton_Pressed = 0x8309
     
-    case UIDraw_Update = 0x8400
-    case UIDraw_Clean = 0x8401
-    case UIDraw_Pixel = 0x8402
-    case UIDraw_Line = 0x8403
-    case UIDraw_Circle = 0x8404
-    case UIDraw_Text = 0x8405
-    case UIDraw_FillRect = 0x8409
-    case UIDraw_Rect = 0x840a
-    case UIDraw_InverseRect = 0x8410
-    case UIDraw_SelectFont = 0x8411
-    case UIDraw_Topline = 0x8412
-    case UIDraw_FillWindow = 0x8413
-    case UIDraw_DotLine = 0x8415
-    case UIDraw_FillCircle = 0x8418
-    case UIDraw_BmpFile = 0x841c
+    case uiDraw_Update = 0x8400
+    case uiDraw_Clean = 0x8401
+    case uiDraw_Pixel = 0x8402
+    case uiDraw_Line = 0x8403
+    case uiDraw_Circle = 0x8404
+    case uiDraw_Text = 0x8405
+    case uiDraw_FillRect = 0x8409
+    case uiDraw_Rect = 0x840a
+    case uiDraw_InverseRect = 0x8410
+    case uiDraw_SelectFont = 0x8411
+    case uiDraw_Topline = 0x8412
+    case uiDraw_FillWindow = 0x8413
+    case uiDraw_DotLine = 0x8415
+    case uiDraw_FillCircle = 0x8418
+    case uiDraw_BmpFile = 0x841c
     
-    case Sound_Break = 0x9400
-    case Sound_Tone = 0x9401
-    case Sound_Play = 0x9402
-    case Sound_Repeat = 0x9403
-    case Sound_Service = 0x9404
-    case Sound_Ready = 0x96
+    case sound_Break = 0x9400
+    case sound_Tone = 0x9401
+    case sound_Play = 0x9402
+    case sound_Repeat = 0x9403
+    case sound_Service = 0x9404
+    case sound_Ready = 0x96
     
-    case InputDevice_GetTypeMode = 0x9905
-    case InputDevice_GetDeviceName = 0x9915
-    case InputDevice_GetModeName = 0x9916
-    case InputDevice_ReadyPct = 0x991b
-    case InputDevice_ReadyRaw = 0x991c
-    case InputDevice_ReadySI = 0x991d
-    case InputDevice_ClearAll = 0x990a
-    case InputDevice_ClearChanges = 0x991a
+    case inputDevice_GetTypeMode = 0x9905
+    case inputDevice_GetDeviceName = 0x9915
+    case inputDevice_GetModeName = 0x9916
+    case inputDevice_ReadyPct = 0x991b
+    case inputDevice_ReadyRaw = 0x991c
+    case inputDevice_ReadySI = 0x991d
+    case inputDevice_ClearAll = 0x990a
+    case inputDevice_ClearChanges = 0x991a
     
-    case InputRead = 0x9a
-    case InputReadExt = 0x9e
-    case InputReadSI = 0x9d
+    case inputRead = 0x9a
+    case inputReadExt = 0x9e
+    case inputReadSI = 0x9d
     
-    case OutputSetType = 0xa1
-    case OutputReset = 0xa2
-    case OutputStop = 0xa3
-    case OutputPower = 0xa4
-    case OutputSpeed = 0xa5
-    case OutputStart = 0xa6
-    case OutputPolarity = 0xa7
-    case OutputReady = 0xaa
-    case OutputStepPower = 0xac
-    case OutputTimePower = 0xad
-    case OutputStepSpeed = 0xae
-    case OutputTimeSpeed = 0xaf
-    case OutputStepSync = 0xb0
-    case OutputTimeSync = 0xb1
-    case OutputClearCount = 0xb2
-    case OutputGetCount = 0xb3
+    case outputSetType = 0xa1
+    case outputReset = 0xa2
+    case outputStop = 0xa3
+    case outputPower = 0xa4
+    case outputSpeed = 0xa5
+    case outputStart = 0xa6
+    case outputPolarity = 0xa7
+    case outputReady = 0xaa
+    case outputStepPower = 0xac
+    case outputTimePower = 0xad
+    case outputStepSpeed = 0xae
+    case outputTimeSpeed = 0xaf
+    case outputStepSync = 0xb0
+    case outputTimeSync = 0xb1
+    case outputClearCount = 0xb2
+    case outputGetCount = 0xb3
     
-    case File_LoadImage = 0xC008
+    case file_LoadImage = 0xC008
     
-    case TimerWait = 0x85
+    case timerWait = 0x85
     
-    case Tst = 0xff
+    case tst = 0xff
 }
 
 enum SystemOpcode : UInt8
 {
-    case BeginDownload = 0x92
-    case ContinueDownload = 0x93
-    case CloseFileHandle = 0x98
-    case CreateDirectory = 0x9b
-    case DeleteFile = 0x9c
+    case beginDownload = 0x92
+    case continueDownload = 0x93
+    case closeFileHandle = 0x98
+    case createDirectory = 0x9b
+    case deleteFile = 0x9c
 }
 
 enum SystemReplyStatus : UInt8
 {
-    case Success = 0x00
-    case UnknownHandle
-    case HandleNotReady
-    case CorruptFile
-    case NoHandlesAvailable
-    case NoPermission
-    case IllegalPath
-    case FileExists
-    case EndOfFile
-    case SizeError
-    case UnknownError
-    case IllegalFilename
-    case IllegalConnection
+    case success = 0x00
+    case unknownHandle
+    case handleNotReady
+    case corruptFile
+    case noHandlesAvailable
+    case noPermission
+    case illegalPath
+    case fileExists
+    case endOfFile
+    case sizeError
+    case unknownError
+    case illegalFilename
+    case illegalConnection
 }
 
 // The type of command being sent to the brick
 public enum CommandType : UInt8
 {
     // Direct command with a reply expected
-    case DirectReply = 0x00
+    case directReply = 0x00
 
     // Direct command with no reply
-    case DirectNoReply = 0x80
+    case directNoReply = 0x80
     
     // System command with a reply expected
-    case SystemReply = 0x01
+    case systemReply = 0x01
     
     // System command with no reply
-    case SystemNoReply = 0x81
+    case systemNoReply = 0x81
 }
 
 // Format for sensor data.
 enum Format : UInt8
 {
     // Percentage
-    case Percent = 0x10
+    case percent = 0x10
     
     // Raw
-    case Raw = 0x11
+    case raw = 0x11
     
     /// International System of Units
-    case SI = 0x12
+    case si = 0x12
 }
 
 // Polarity/direction to turn the motor
 enum Polarity : Int
 {
     // Turn backward
-    case Backward = -1
+    case backward = -1
 
     // Turn in the opposite direction
-    case Opposite = 0
+    case opposite = 0
 
     // Turn forward
-    case Forward = 1
+    case forward = 1
 }
 
 /// Ports which can receive input data
 public enum InputPort : UInt8
 {
     /// Port 1
-    case One = 0x00
+    case one = 0x00
 
     /// Port 2
-    case Two = 0x01
+    case two = 0x01
 
     /// Port 3
-    case Three = 0x02
+    case three = 0x02
 
     /// Port 4
-    case Four = 0x03
+    case four = 0x03
     
     /// Port A
-    case A	= 0x10
+    case a	= 0x10
 
     /// Port B
-    case B	= 0x11
+    case b	= 0x11
 
     /// Port C
-    case C	= 0x12
+    case c	= 0x12
     
     /// Port D
-    case D	= 0x13
+    case d	= 0x13
     
     /// makes it possible to loop over this enum as swift provides no functionality for this yet
-    static let allValues = [One, Two, Three, Four, A, B, C, D]
+    static let allValues = [one, two, three, four, a, b, c, d]
 }
 
 
 // Ports which can send output
-public struct OutputPort : OptionSetType {
+public struct OutputPort : OptionSet {
     public let rawValue: UInt8
     
     public init(rawValue:UInt8){ self.rawValue = rawValue}
@@ -228,41 +228,41 @@ public enum DeviceType : UInt8
     // 2 motors
 
     /// Large motor
-    case LMotor = 7
+    case lMotor = 7
     
     /// Medium motor
-    case MMotor = 8
+    case mMotor = 8
     
     // Ev3 devices
 
     /// EV3 Touch sensor
-    case Touch = 16
+    case touch = 16
  
     /// EV3 Color sensor
-    case Color = 29
+    case color = 29
 
     /// EV3 Ultrasonic sensor
-    case Ultrasonic = 30
+    case ultrasonic = 30
 
     /// EV3 Gyroscope sensor
-    case Gyroscope = 32
+    case gyroscope = 32
     
     /// EV3 IR sensor
-    case Infrared = 33
+    case infrared = 33
     
     // other
 
     /// Sensor is initializing
-    case Initializing = 0x7d
+    case initializing = 0x7d
 
     /// Port is empty
-    case Empty = 0x7e
+    case empty = 0x7e
 
     /// Sensor is plugged into a motor port, or vice-versa
-    case WrongPort = 0x7f
+    case wrongPort = 0x7f
     
     /// Unknown sensor/status
-    case Unknown = 0xff
+    case unknown = 0xff
 }
 
 
@@ -270,112 +270,112 @@ public enum DeviceType : UInt8
 public enum BrickButton: UInt8
 {
     /// No button
-    case None = 0
+    case none = 0
 
     /// Up button
-    case Up = 1
+    case up = 1
 
     /// Enter button
-    case Enter = 2
+    case enter = 2
 
     /// Down button
-    case Down = 3
+    case down = 3
     
     /// Right button
-    case Right = 4
+    case right = 4
 
     /// Left button
-    case Left = 5
+    case left = 5
 
     /// Back button
-    case Back = 6
+    case back = 6
 
     /// Any button
-    case Any = 7
+    case anyKey = 7
 }
 
 /// Pattern to light up the EV3 brick's LED
 public enum LedPattern : UInt8
 {
     /// LED off
-    case Black = 0
+    case black = 0
     
     /// Solid green
-    case Green = 1
+    case green = 1
 
     /// Solid red
-    case Red = 2
+    case red = 2
 
     /// Solid orange
-    case Orange = 3
+    case orange = 3
     
     /// Flashing green
-    case GreenFlash = 4
+    case greenFlash = 4
 
     /// Flashing red
-    case RedFlash = 5
+    case redFlash = 5
     
     /// Flashing orange
-    case OrangeFlash = 6
+    case orangeFlash = 6
 
     /// Pulsing green
-    case GreenPulse = 7
+    case greenPulse = 7
 
     /// Pulsing red
-    case RedPulse = 8
+    case redPulse = 8
 
     /// Pulsing orange
-    case OrangePulse = 9
+    case orangePulse = 9
 }
 
 /// NXT and EV3 Touch Sensor mode
 public enum TouchMode : UInt8
 {
     /// On when pressed, off when released
-    case Touch = 0
+    case touch = 0
 
     /// Running counter of number of presses
-    case Bumps = 1
+    case bumps = 1
 }
 
 /// NXT Light Sensor mode
 public enum NxtLightMode : UInt8
 {
     /// Amount of reflected light
-    case Reflect = 0
+    case reflect = 0
 
     /// Amoutn of ambient light
-    case Ambient = 1
+    case ambient = 1
 }
 
 /// NXT Sound Sensor mode
 public enum NxtSoundMode : UInt8
 {
     /// Decibels
-    case Decibels = 0
+    case decibels = 0
     
     /// Adjusted Decibels
-    case AdjustedDecibels = 1
+    case adjustedDecibels = 1
 }
 
 /// NXT Ultrasonic Sensor mode
 public enum NxtUltrasonicMode : UInt8
 {
     /// Values in centimeter units
-    case Centimeters = 0
+    case centimeters = 0
 
     /// Values in inch units
-    case Inches = 1
+    case inches = 1
 }
 
 /// NXT Temperature Sensor mode
 public enum NxtTemperatureMode : UInt8
 {
     /// Values in Celsius units
-    case Celsius = 0
+    case celsius = 0
     
     /// Values in Fahrenheit units
-    case Fahrenheit = 1
+    case fahrenheit = 1
 }
 
 /// Motor mode
@@ -383,13 +383,13 @@ public enum MotorMode : UInt8
 {
 
     /// Values in degrees
-    case Degrees = 0
+    case degrees = 0
     
     /// Values in rotations
-    case Rotations = 1
+    case rotations = 1
 
     /// Values in percentage
-    case Percent = 2
+    case percent = 2
 }
 
 
@@ -397,22 +397,22 @@ public enum MotorMode : UInt8
 public enum ColorMode : UInt8
 {
     /// Reflected color
-    case Reflective = 0
+    case reflective = 0
 
     /// Ambient color
-    case Ambient = 1
+    case ambient = 1
 
     /// Specific color
-    case Color = 2
+    case color = 2
     
     /// Reflected color raw value
-    case ReflectiveRaw = 3
+    case reflectiveRaw = 3
 
     /// Reflected color RGB value
-    case ReflectiveRgb = 4
+    case reflectiveRgb = 4
 
     /// Calibration
-    case Calibration = 5 // TODO: ??
+    case calibration = 5 // TODO: ??
 }
 
 
@@ -420,44 +420,44 @@ public enum ColorMode : UInt8
 public enum UltrasonicMode : UInt8
 {
     /// Values in centimeter units
-    case Centimeters = 0
+    case centimeters = 0
 
     /// Values in inch units
-    case Inches = 1
+    case inches = 1
 
     /// Listen mode
-    case Listen = 2
+    case listen = 2
     
     /// Unknown
-    case SiCentimeters = 3
+    case siCentimeters = 3
 
     /// Unknown
-    case SiInches = 4
+    case siInches = 4
     
     /// Unknown
-    case DcCentimeters = 5	// TODO: DC?
+    case dcCentimeters = 5	// TODO: DC?
 
     /// Unknown
-    case DcInches = 6		// TODO: DC?
+    case dcInches = 6		// TODO: DC?
 }
 
 /// EV3 Gyroscope Sensor mode
 public enum GyroscopeMode : UInt8
 {
     /// Angle
-    case Angle = 0
+    case angle = 0
 
     /// Rate of movement
-    case Rate = 1
+    case rate = 1
 
     /// Unknown
-    case Fas = 2		// TOOD: ??
+    case fas = 2		// TOOD: ??
 
     /// Unknown
-    case GandA = 3	// TODO: ??
+    case gandA = 3	// TODO: ??
 
     /// Calibrate
-    case Calibrate = 4
+    case calibrate = 4
 }
 
 /// EV3 Infrared Sensor mode
@@ -465,50 +465,50 @@ public enum InfraredMode : UInt8
 {
 
     /// Proximity
-    case Proximity = 0
+    case proximity = 0
 
     /// Seek
-    case Seek = 1
+    case seek = 1
 
     /// EV3 remote control
-    case Remote = 2
+    case remote = 2
 
     /// Unknown
-    case RemoteA = 3	// TODO: ??
+    case remoteA = 3	// TODO: ??
 
     /// Unknown
-    case SAlt = 4		// TODO: ??
+    case salt = 4		// TODO: ??
 
     ///  Calibrate
-    case Calibrate = 5
+    case calibrate = 5
 }
 
 /// Values returned by the color sensor
 public enum ColorSensorColor
 {
     /// Transparent
-    case Transparent
+    case transparent
 
     /// Black
-    case Black
+    case black
     
     /// Blue
-    case Blue
+    case blue
 
     /// Green
-    case Green
+    case green
 
     /// Yellow
-    case Yellow
+    case yellow
 
     /// Red
-    case Red
+    case red
     
     /// White
-    case White
+    case white
 
     /// Brown
-    case Brown
+    case brown
 }
 
 
