@@ -168,7 +168,7 @@ public class Ev3Connection : NSObject, StreamDelegate {
 
         }
         
-        print("bytes written \(bytesWritten)")
+        print("bytes written \(bytesWritten.debugDescription)")
         print("write buffer size: \(writeBuffer.count)")
         Thread.sleep(forTimeInterval: connSleepTime) //give the ev3 time - too much traffic will disconnect the bt connection
     }
