@@ -79,15 +79,16 @@ public class Ev3Connection : NSObject, StreamDelegate {
             return
         }
         
-        session = EASession(accessory: self.accessory, forProtocol: Ev3Constants.supportedProtocol)
+        let session = EASession(accessory: self.accessory, forProtocol: Ev3Constants.supportedProtocol)
+        self.session = session
         
-        session!.outputStream!.delegate = self
-        session!.outputStream!.schedule(in: RunLoop.main, forMode: RunLoopMode.commonModes)
-        session!.outputStream!.open()
+        session.outputStream?.delegate = self
+        session.outputStream?.schedule(in: RunLoop.main, forMode: RunLoopMode.commonModes)
+        session.outputStream?.open()
         
-        session!.inputStream!.delegate = self
-        session!.inputStream!.schedule(in: RunLoop.main, forMode: RunLoopMode.commonModes)
-        session!.inputStream!.open()
+        session.inputStream?.delegate = self
+        session.inputStream?.schedule(in: RunLoop.main, forMode: RunLoopMode.commonModes)
+        session.inputStream?.open()
         
         isClosed = false
         
@@ -152,15 +153,15 @@ public class Ev3Connection : NSObject, StreamDelegate {
 
         var bytesLeftToWrite: NSInteger = mData.length
         
-        let bytesWritten = session?.outputStream?.write(bytes, maxLength: bytesLeftToWrite)
-        if bytesWritten == -1 || bytesWritten == nil{
+        let bytesWritten = session?.outputStream?.write(bytes, maxLength: bytesLeftToWrite) ?? -1
+        if bytesWritten == -1 {
             print("error while writing data to bt output stream")
             canWrite = true
             return // Some error occurred ...
         }
         
-        bytesLeftToWrite -= bytesWritten!
-        bytes = bytes.advanced(by: bytesWritten!)
+        bytesLeftToWrite -= bytesWritten
+        bytes = bytes.advanced(by: bytesWritten)
         
         if bytesLeftToWrite > 0 {
             print("error: not enough space in stream")
@@ -168,7 +169,7 @@ public class Ev3Connection : NSObject, StreamDelegate {
 
         }
         
-        print("bytes written \(bytesWritten.debugDescription)")
+        print("bytes written \(bytesWritten)")
         print("write buffer size: \(writeBuffer.count)")
         Thread.sleep(forTimeInterval: connSleepTime) //give the ev3 time - too much traffic will disconnect the bt connection
     }
@@ -206,17 +207,17 @@ public class Ev3Connection : NSObject, StreamDelegate {
     /// with the received data
     private func readInBackground(){
         
-        var result = session?.inputStream?.read(&sizeBuffer, maxLength: sizeBuffer.count)
+        let result = session?.inputStream?.read(&sizeBuffer, maxLength: sizeBuffer.count) ?? 0
         
-        if(result! > 0) {
+        if(result > 0) {
             // buffer contains result bytes of data to be handled
             let size: Int16 = Int16(sizeBuffer[1]) << 8 | Int16(sizeBuffer[0])
             
             if size > 0 {
                 var buffer = [UInt8](repeating: 0x00, count: Int(size))
-                result = session?.inputStream?.read(&buffer, maxLength: buffer.count)
+                let result = session?.inputStream?.read(&buffer, maxLength: buffer.count) ?? 0
                 
-                if result! < 1 {
+                if result < 1 {
                     print("error reading the input data with size: \(size)")
                     return
                 }

@@ -221,14 +221,12 @@ public class Ev3DirectCommand {
         let c = Ev3Command(commandType: .directReply, globalSize: 0x10, localSize: 0)
         c.getFirwmareVersion(maxLength: 0x10, index: 0)
         c.response?.responseReceivedCallback = {
-            if(c.response?.data == nil){
-                receivedFirmware(nil)
-            }
-            else if let str = String(data: c.response!.data! as Data, encoding: String.Encoding.utf8) {
+            if let data = c.response?.data, let str = String(data: data as Data, encoding: String.Encoding.utf8) {
                 receivedFirmware(str)
             } else {
                 receivedFirmware(nil)
-            }}
+            }
+        }
         
         brick.sendCommand(c)
     }
@@ -243,14 +241,12 @@ public class Ev3DirectCommand {
         let c = Ev3Command(commandType: CommandType.directReply, globalSize: 0x7f, localSize: 0)
         c.getDeviceName(port: port, bufferSize: 0x7f, index: 0)
         c.response?.responseReceivedCallback = {
-            if(c.response?.data == nil){
-                receivedDeviceName(nil)
-            }
-            else if let str = String(data: c.response!.data! as Data, encoding: String.Encoding.utf8) {
+            if let data = c.response?.data, let str = String(data: data as Data, encoding: String.Encoding.utf8) {
                 receivedDeviceName(str)
             } else {
                 receivedDeviceName(nil)
-        }   }
+            }
+        }
         
         brick.sendCommand(c)
     }
@@ -266,7 +262,7 @@ public class Ev3DirectCommand {
                 receivedBatLevel(nil)
             }
             else {
-                let level = ByteTools.convertToUInt8(data: c.response!.data!, position: 0)
+                let level = ByteTools.convertToUInt8(data: c.response?.data, position: 0)
                 receivedBatLevel(level)
             }        
         }
@@ -284,7 +280,7 @@ public class Ev3DirectCommand {
                 receivedButtonState(nil)
             }
             else{
-                let data = ByteTools.convertToUInt8(data: c.response!.data!, position: 0)
+                let data = ByteTools.convertToUInt8(data: c.response?.data, position: 0)
                 receivedButtonState(data == 1)
             }
         }
@@ -331,13 +327,12 @@ public class Ev3DirectCommand {
         let c = Ev3Command(commandType: .directReply, globalSize: 4, localSize: 0)
         c.readyRaw(port: port, mode: mode, index: 0)
         c.response?.responseReceivedCallback = {
-            if( c.response?.data == nil){
+            if let data = c.response?.data {
+                let bytes = NSData(bytes: data.bytes, length: data.length)
+                receivedRaw(bytes)
+            } else {
                 receivedRaw(nil)
             }
-            else {
-                let data = NSData(bytes: c.response!.data!.bytes, length: c.response!.data!.length)
-                receivedRaw(data)
-            }            
         }
         brick.sendCommand(c)
     }

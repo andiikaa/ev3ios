@@ -13,7 +13,7 @@ public class Ev3Command {
     var brick: Ev3Brick?
     
     var commandType: CommandType?
-    var buffer: NSMutableData?
+    var buffer: NSMutableData = NSMutableData()
     var response: Ev3Response?
     
     convenience init(brick: Ev3Brick) {
@@ -39,29 +39,29 @@ public class Ev3Command {
      */
     public func initialize(commandType: CommandType, globalSize: UInt16, localSize: Int){
         self.commandType = commandType
-        buffer = NSMutableData()
         
-        response = Ev3ResponseManager.createResponse();
+        let response = Ev3ResponseManager.createResponse()
+        self.response = response
         
         // 2 bytes (this gets filled in later when the user calls toBytes()
-        buffer!.appendUInt16(value: 0xffff)
+        buffer.appendUInt16(value: 0xffff)
         
-        print("created sequence: \(response!.sequence)")
+        print("created sequence: \(response.sequence)")
         
         // 2 bytes
-        buffer!.appendUInt16LE(value: response!.sequence)
+        buffer.appendUInt16LE(value: response.sequence)
         
         // 1 byte
-        buffer!.appendUInt8(value: commandType.rawValue)
+        buffer.appendUInt8(value: commandType.rawValue)
         
         if(commandType == CommandType.directReply || commandType == CommandType.directNoReply){
             // 2 bytes (llllllgg gggggggg)
             
             //lower bits of global size
-            buffer!.appendUInt8(value: UInt8(globalSize))
+            buffer.appendUInt8(value: UInt8(globalSize))
             
             // upper bits of globalSize + localSize
-            buffer!.appendUInt8(value: UInt8(localSize << 2 | Int((globalSize >> 8) & 0x03)))
+            buffer.appendUInt8(value: UInt8(localSize << 2 | Int((globalSize >> 8) & 0x03)))
         }
     }
     
@@ -70,37 +70,37 @@ public class Ev3Command {
     }
     
     func addParameter(_ parameter: UInt8){
-        buffer!.appendUInt8(value: ArgumentSize.byte.rawValue)
-        buffer!.appendUInt8(value: parameter)
+        buffer.appendUInt8(value: ArgumentSize.byte.rawValue)
+        buffer.appendUInt8(value: parameter)
     }
     
     func addParameter(_ parameter: Int16) {
-        buffer?.appendUInt8(value: ArgumentSize.short.rawValue)
-        buffer?.appendInt16LE(value: parameter)
+        buffer.appendUInt8(value: ArgumentSize.short.rawValue)
+        buffer.appendInt16LE(value: parameter)
     }
     
     func addParameter(_ parameter: UInt16) {
-        buffer?.appendUInt8(value: ArgumentSize.short.rawValue)
-        buffer?.appendUInt16LE(value: parameter)
+        buffer.appendUInt8(value: ArgumentSize.short.rawValue)
+        buffer.appendUInt16LE(value: parameter)
     }
     
     func addParameter(_ parameter: UInt32) {
-        buffer?.appendUInt8(value: ArgumentSize.int.rawValue)
-        buffer?.appendUInt32LE(value: parameter)
+        buffer.appendUInt8(value: ArgumentSize.int.rawValue)
+        buffer.appendUInt32LE(value: parameter)
     }
     
     func addParameter(_ s: String){
         // 0x84 = long format, null terminated string
-        buffer?.appendUInt8(value: ArgumentSize.string.rawValue)
+        buffer.appendUInt8(value: ArgumentSize.string.rawValue)
         let bytes: [UInt8] = [UInt8](s.utf8)
-        buffer?.append(bytes, length: bytes.count)     
-        buffer?.appendUInt8(value: 0x00)
+        buffer.append(bytes, length: bytes.count)
+        buffer.appendUInt8(value: 0x00)
     }
     
     func addGlobalIndex(_ index: UInt8) {
         // 0xe1 = global index, long format, 1 byte
-        buffer!.appendUInt8(value: 0xe1);
-        buffer!.appendUInt8(value: index);
+        buffer.appendUInt8(value: 0xe1);
+        buffer.appendUInt8(value: index);
     }
     
     func addOpcode(_ opcode: Opcode) {
@@ -108,15 +108,15 @@ public class Ev3Command {
         // I combined opcode + sub into ushort where applicable, so we need to pull them back apart here
         
         if opcode.rawValue > Opcode.tst.rawValue {
-            buffer!.appendUInt8(value: UInt8(opcode.rawValue >> 8))
+            buffer.appendUInt8(value: UInt8(opcode.rawValue >> 8))
         }
-        buffer!.appendUInt8(value: UInt8(opcode.rawValue & 0x00ff))
+        buffer.appendUInt8(value: UInt8(opcode.rawValue & 0x00ff))
     }
     
     func toBytes() -> NSData
     {
         // size of data, not including the 2 size bytes
-        let size = UInt32(buffer!.length - 2)
+        let size = UInt32(buffer.length - 2)
         
         let byteArray = ByteTools.uint32ToUint8Array(value: size)
     
@@ -124,12 +124,12 @@ public class Ev3Command {
         var lsb = UInt8(byteArray[3])
     
         // little-endian
-        buffer!.replaceBytes(in: NSRange(location: 0, length: 1), withBytes: &lsb)
-        buffer!.replaceBytes(in: NSRange(location: 1, length: 1), withBytes: &msb)
+        buffer.replaceBytes(in: NSRange(location: 0, length: 1), withBytes: &lsb)
+        buffer.replaceBytes(in: NSRange(location: 1, length: 1), withBytes: &msb)
 
         //TODO is a copy needed if commands executed asyn?
         //return NSData(bytes: buffer!.bytes, length: buffer!.length)
-        return buffer!
+        return buffer
     }
     
     /**

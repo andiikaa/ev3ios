@@ -70,8 +70,9 @@ class ByteTools{
         return all[1]
     }
     
-    static func convertToUInt8(data: NSData, position: Int) -> UInt8{
+    static func convertToUInt8(data: NSData?, position: Int) -> UInt8{
         var out: UInt8 = 0
+        guard let data = data else { return 0 }
         data.getBytes(&out, range: NSMakeRange(position, 1))
         return out
     }

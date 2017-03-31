@@ -44,15 +44,11 @@ class Ev3ResponseManager {
         print("received reply for sequence number \(sequence)")
         
         let replyType: UInt8 = report[2]
-        let rt = responses[sequence]
         
-        if rt == nil {
+        guard let r = responses[sequence] else {
             print("no item for sequence number \(sequence)")
             return
         }
-        
-        let r = rt!       
-        
         
         if let rt = ReplyType(rawValue: replyType){
             r.replyType = rt
