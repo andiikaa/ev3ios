@@ -11,8 +11,8 @@ import Foundation
 
 public class Ev3Port {
 
-    var index: Int?
-    var inputPort: InputPort?
+    var index: Int
+    var inputPort: InputPort
     
     /// Name of port.
     var name: String?
@@ -36,8 +36,9 @@ public class Ev3Port {
     //private let context: SynchronizationContext
     
     /// Constructor
-    public init (){
-        
+    public init (index: Int, inputPort: InputPort) {
+        self.index = index
+        self.inputPort = inputPort
     }
     
 

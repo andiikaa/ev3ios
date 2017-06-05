@@ -25,9 +25,9 @@ public class Ev3DirectCommand {
         - parameter power: The power at which to turn the motor (-100 to 100)
      */
     public func turnMotorAtPower(onPorts ports: OutputPort, withPower power: Int16){
-        let c = Ev3Command(commandType: .DirectNoReply)
-        c.turnMotorAtPower(ports, power: power)
-        c.startMotor(ports)
+        let c = Ev3Command(commandType: .directNoReply)
+        c.turnMotorAtPower(ports: ports, power: power)
+        c.startMotor(ports: ports)
         brick.sendCommand(c)
     }
     
@@ -40,9 +40,9 @@ public class Ev3DirectCommand {
      
      */
     public func turnMotorAtSpeed(onPorts ports: OutputPort, withSpeed speed: Int16){
-        let c = Ev3Command(commandType: .DirectNoReply)
-        c.turnMotorAtSpeed(ports, speed: speed)
-        c.startMotor(ports)
+        let c = Ev3Command(commandType: .directNoReply)
+        c.turnMotorAtSpeed(ports: ports, speed: speed)
+        c.startMotor(ports: ports)
         brick.sendCommand(c)
     }
     
@@ -56,7 +56,7 @@ public class Ev3DirectCommand {
      - parameter brake: apply brake to motor(s) at the end of routine
      */
     public func stepMotorAtSpeed(ports: OutputPort, speed: Int16, steps: UInt32, brake: Bool){
-        stepMotorAtSpeed(ports, speed: speed, rampUpSteps: 0, constantSteps: steps,
+        stepMotorAtSpeed(ports: ports, speed: speed, rampUpSteps: 0, constantSteps: steps,
                          rampDownSteps: 0, brake: brake)
     }
     
@@ -72,8 +72,8 @@ public class Ev3DirectCommand {
      - parameter brake: apply brake to motor(s) at the end of routine
      */
     public func stepMotorAtSpeed(ports: OutputPort, speed: Int16, rampUpSteps: UInt32, constantSteps: UInt32, rampDownSteps: UInt32, brake: Bool){
-        let c = Ev3Command(commandType: .DirectNoReply)
-        c.stepMotorAtSpeed(ports, speed: speed, rampUpSteps: rampUpSteps, constantSteps: constantSteps,
+        let c = Ev3Command(commandType: .directNoReply)
+        c.stepMotorAtSpeed(ports: ports, speed: speed, rampUpSteps: rampUpSteps, constantSteps: constantSteps,
                            rampDownSteps: rampUpSteps, brake: brake)
         brick.sendCommand(c)
     }
@@ -91,8 +91,8 @@ public class Ev3DirectCommand {
      - parameter brake: Apply brake to motor at end of routine
      */
     public func stepMotorAtPower(ports: OutputPort, power: Int16, rampUpSteps: UInt32, constantSteps: UInt32, rampDownSteps: UInt32, brake: Bool){
-        let c = Ev3Command(commandType: .DirectNoReply)
-        c.stepMotorAtPower(ports, power: power, rampUpSteps: rampDownSteps, constantSteps: constantSteps, rampDownSteps: rampDownSteps, brake: brake)
+        let c = Ev3Command(commandType: .directNoReply)
+        c.stepMotorAtPower(ports: ports, power: power, rampUpSteps: rampDownSteps, constantSteps: constantSteps, rampDownSteps: rampDownSteps, brake: brake)
         brick.sendCommand(c)
     }
     /**
@@ -115,8 +115,8 @@ public class Ev3DirectCommand {
      
      */
     public func stepMotorSync(ports: OutputPort, speed: Int16, turnRatio: Int16, step: UInt32, brake: Bool){
-        let c = Ev3Command(commandType: .DirectNoReply)
-        c.stepMotorSync(ports, speed: speed, turnRatio: turnRatio, step: step, brake: brake)
+        let c = Ev3Command(commandType: .directNoReply)
+        c.stepMotorSync(ports: ports, speed: speed, turnRatio: turnRatio, step: step, brake: brake)
         brick.sendCommand(c)
     }
     
@@ -139,8 +139,8 @@ public class Ev3DirectCommand {
      
      */
     public func timeMotorSync(ports: OutputPort, speed: Int16, turnRatio: Int16, time: UInt32, brake: Bool){
-        let c = Ev3Command(commandType: .DirectNoReply)
-        c.timeMotorSync(ports, speed: speed, turnRatio: turnRatio, time: time, brake: brake)
+        let c = Ev3Command(commandType: .directNoReply)
+        c.timeMotorSync(ports: ports, speed: speed, turnRatio: turnRatio, time: time, brake: brake)
         brick.sendCommand(c)
     }
     
@@ -153,7 +153,7 @@ public class Ev3DirectCommand {
      - parameter brake: apply brake to motor at end of routine
      */
     public func turnMotorAtSpeedForTime(ports: OutputPort, speed: Int16, milliseconds: UInt32, brake: Bool){
-        turnMotorAtSpeedForTime(ports, speed: speed, msRampUp: 0, msConstant: milliseconds, msRampDown: 0, brake: brake)
+        turnMotorAtSpeedForTime(ports: ports, speed: speed, msRampUp: 0, msConstant: milliseconds, msRampDown: 0, brake: brake)
     }
     
     /**
@@ -166,8 +166,8 @@ public class Ev3DirectCommand {
      - parameter brake: apply brake to motor at end of routine
      */
     public func turnMotorAtSpeedForTime(ports: OutputPort, speed: Int16, msRampUp: UInt32, msConstant: UInt32, msRampDown: UInt32, brake: Bool){
-        let c = Ev3Command(commandType: .DirectNoReply)
-        c.turnMotorAtSpeedForTime(ports, speed: speed, msRampUp: msRampUp, msConstant: msConstant, msRampDown: msRampDown, brake: brake)
+        let c = Ev3Command(commandType: .directNoReply)
+        c.turnMotorAtSpeedForTime(ports: ports, speed: speed, msRampUp: msRampUp, msConstant: msConstant, msRampDown: msRampDown, brake: brake)
         brick.sendCommand(c)
     }
     
@@ -181,8 +181,8 @@ public class Ev3DirectCommand {
      - parameter brake: Apply brake to motor at end of routine
      */
     public func stepMotorAtPower(ports: OutputPort, power: Int16, steps: UInt32, brake: Bool){
-        let c = Ev3Command(commandType: .DirectNoReply)
-        c.stepMotorAtPower(ports, power: power, steps: steps, brake: brake)
+        let c = Ev3Command(commandType: .directNoReply)
+        c.stepMotorAtPower(ports: ports, power: power, steps: steps, brake: brake)
         brick.sendCommand(c)
     }
     
@@ -194,8 +194,8 @@ public class Ev3DirectCommand {
         - parameter brake: Apply brake to motor at end of routine.
      */
     public func stopMotor(onPorts ports: OutputPort, withBrake brake: Bool){
-        let c = Ev3Command(commandType: .DirectNoReply)
-        c.stopMotor(ports, brake: brake)
+        let c = Ev3Command(commandType: .directNoReply)
+        c.stopMotor(ports: ports, brake: brake)
         brick.sendCommand(c)
     }
     
@@ -206,8 +206,8 @@ public class Ev3DirectCommand {
      - parameter ledPattern: Pattern to display on LED
      */
     public func setLedPattern(ledPattern: LedPattern) {
-        let c = Ev3Command(commandType: .DirectNoReply)
-        c.setLedPattern(ledPattern)
+        let c = Ev3Command(commandType: .directNoReply)
+        c.setLedPattern(ledPattern: ledPattern)
         brick.sendCommand(c)
     }
     
@@ -217,18 +217,16 @@ public class Ev3DirectCommand {
      - parameter receivedFirmware: Callback for receiving the Firmware
      
      */
-    public func getFirmwareVersion(receivedFirmware: (String?) -> Void){
-        let c = Ev3Command(commandType: .DirectReply, globalSize: 0x10, localSize: 0)
-        c.getFirwmareVersion(0x10, index: 0)
+    public func getFirmwareVersion(receivedFirmware: @escaping (String?) -> Void){
+        let c = Ev3Command(commandType: .directReply, globalSize: 0x10, localSize: 0)
+        c.getFirwmareVersion(maxLength: 0x10, index: 0)
         c.response?.responseReceivedCallback = {
-            if(c.response?.data == nil){
-                receivedFirmware(nil)
-            }
-            else if let str = String(data: c.response!.data!, encoding: NSUTF8StringEncoding) {
+            if let data = c.response?.data, let str = String(data: data as Data, encoding: String.Encoding.utf8) {
                 receivedFirmware(str)
             } else {
                 receivedFirmware(nil)
-            }}
+            }
+        }
         
         brick.sendCommand(c)
     }
@@ -239,18 +237,16 @@ public class Ev3DirectCommand {
      - parameter port: Port to query
      - parameter receivedDeviceName: Callback to receive the device name
      */
-    public func getDeviceName(port: InputPort, receivedDeviceName: (String?) -> Void) {
-        let c = Ev3Command(commandType: CommandType.DirectReply, globalSize: 0x7f, localSize: 0)
-        c.getDeviceName(port, bufferSize: 0x7f, index: 0)
+    public func getDeviceName(port: InputPort, receivedDeviceName: @escaping (String?) -> Void) {
+        let c = Ev3Command(commandType: CommandType.directReply, globalSize: 0x7f, localSize: 0)
+        c.getDeviceName(port: port, bufferSize: 0x7f, index: 0)
         c.response?.responseReceivedCallback = {
-            if(c.response?.data == nil){
-                receivedDeviceName(nil)
-            }
-            else if let str = String(data: c.response!.data!, encoding: NSUTF8StringEncoding) {
+            if let data = c.response?.data, let str = String(data: data as Data, encoding: String.Encoding.utf8) {
                 receivedDeviceName(str)
             } else {
                 receivedDeviceName(nil)
-        }   }
+            }
+        }
         
         brick.sendCommand(c)
     }
@@ -258,15 +254,15 @@ public class Ev3DirectCommand {
     /**
      Gets the battery level in range from 0 to 100.
      */
-    public func getBatteryLevel(receivedBatLevel: (UInt8?) -> Void){
-        let c = Ev3Command(commandType: .DirectReply, globalSize: 8, localSize: 0)
-        c.getBatteryLevel(0)
+    public func getBatteryLevel(receivedBatLevel: @escaping (UInt8?) -> Void){
+        let c = Ev3Command(commandType: .directReply, globalSize: 8, localSize: 0)
+        c.getBatteryLevel(index: 0)
         c.response?.responseReceivedCallback = {
             if c.response?.data == nil {
                 receivedBatLevel(nil)
             }
             else {
-                let level = ByteTools.convertToUInt8(c.response!.data!, position: 0)
+                let level = ByteTools.convertToUInt8(data: c.response?.data, position: 0)
                 receivedBatLevel(level)
             }        
         }
@@ -276,15 +272,15 @@ public class Ev3DirectCommand {
     /**
      Gets the information, if a button is pressed
      */
-    public func isBrickButtonPressed(button: BrickButton, receivedButtonState: (Bool?) -> Void){
-        let c = Ev3Command(commandType: .DirectReply, globalSize: 1, localSize: 0)
-        c.isBrickButtonPressed(BrickButton.Up, index: 0)
+    public func isBrickButtonPressed(button: BrickButton, receivedButtonState: @escaping (Bool?) -> Void){
+        let c = Ev3Command(commandType: .directReply, globalSize: 1, localSize: 0)
+        c.isBrickButtonPressed(button: BrickButton.up, index: 0)
         c.response?.responseReceivedCallback = {
             if(c.response?.data == nil){
                 receivedButtonState(nil)
             }
             else{
-                let data = ByteTools.convertToUInt8(c.response!.data!, position: 0)
+                let data = ByteTools.convertToUInt8(data: c.response?.data, position: 0)
                 receivedButtonState(data == 1)
             }
         }
@@ -298,8 +294,8 @@ public class Ev3DirectCommand {
      - parameter filename: Filename on the Brick of the sound to play
      */
     public func playSound(volume: UInt8, filename: String){
-        let c = Ev3Command(commandType: .DirectNoReply)
-        c.playSound(volume, filename: filename)
+        let c = Ev3Command(commandType: .directNoReply)
+        c.playSound(volume: volume, filename: filename)
         brick.sendCommand(c)
     }
     
@@ -311,8 +307,8 @@ public class Ev3DirectCommand {
      - parameter duration: Duration of the tone in milliseconds
      */
     public func playTone(volume: UInt8, frequency: UInt16, duration: UInt16) {
-        let c = Ev3Command(commandType: .DirectNoReply)
-        c.playTone(volume, frequency: frequency, duration: duration)
+        let c = Ev3Command(commandType: .directNoReply)
+        c.playTone(volume: volume, frequency: frequency, duration: duration)
         brick.sendCommand(c)
     }
     
@@ -327,17 +323,16 @@ public class Ev3DirectCommand {
      (Data32) VALUE1 – First value received from sensor in the specified mode
      
      */
-    public func readyRaw(port: InputPort, mode: UInt8, receivedRaw: (NSData?) -> Void){
-        let c = Ev3Command(commandType: .DirectReply, globalSize: 4, localSize: 0)
-        c.readyRaw(port, mode: mode, index: 0)
+    public func readyRaw(port: InputPort, mode: UInt8, receivedRaw: @escaping (NSData?) -> Void){
+        let c = Ev3Command(commandType: .directReply, globalSize: 4, localSize: 0)
+        c.readyRaw(port: port, mode: mode, index: 0)
         c.response?.responseReceivedCallback = {
-            if( c.response?.data == nil){
+            if let data = c.response?.data {
+                let bytes = NSData(bytes: data.bytes, length: data.length)
+                receivedRaw(bytes)
+            } else {
                 receivedRaw(nil)
             }
-            else {
-                let data = NSData(bytes: c.response!.data!.bytes, length: c.response!.data!.length)
-                receivedRaw(data)
-            }            
         }
         brick.sendCommand(c)
     }
@@ -346,8 +341,8 @@ public class Ev3DirectCommand {
      Clears the tacho count used as sensor input
      */
     public func clearCount(ports: OutputPort){
-        let c = Ev3Command(commandType: .DirectNoReply)
-        c.clearCount(ports)
+        let c = Ev3Command(commandType: .directNoReply)
+        c.clearCount(ports: ports)
         brick.sendCommand(c)
     }
     
@@ -355,8 +350,8 @@ public class Ev3DirectCommand {
      starts a user program
      */
     public func programStart(name: String, debug: Bool){
-        let c = Ev3Command(commandType: .DirectNoReply, globalSize: 8, localSize: 0)
-        c.programStart(0x01, filename: name, sizeIndex: 0, ipIndex: 4, debug: debug)
+        let c = Ev3Command(commandType: .directNoReply, globalSize: 8, localSize: 0)
+        c.programStart(programId: 0x01, filename: name, sizeIndex: 0, ipIndex: 4, debug: debug)
         brick.sendCommand(c)
     }
     

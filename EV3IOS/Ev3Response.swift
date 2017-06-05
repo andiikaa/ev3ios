@@ -10,7 +10,7 @@ import Foundation
 
 class Ev3Response {
     var replyType: ReplyType?
-    var sequence: UInt16?
+    var sequence: UInt16
     
     var data: NSData?
     var systemCommand: SystemOpcode?

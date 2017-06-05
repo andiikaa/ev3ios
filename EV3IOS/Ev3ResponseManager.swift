@@ -44,25 +44,21 @@ class Ev3ResponseManager {
         print("received reply for sequence number \(sequence)")
         
         let replyType: UInt8 = report[2]
-        let rt = responses[sequence]
         
-        if rt == nil {
+        guard let r = responses[sequence] else {
             print("no item for sequence number \(sequence)")
             return
         }
-        
-        let r = rt!       
-        
         
         if let rt = ReplyType(rawValue: replyType){
             r.replyType = rt
         }
         
-        if(r.replyType != nil && ( r.replyType == .DirectReply || r.replyType == .DirectReplyError)) {
+        if(r.replyType != nil && ( r.replyType == .directReply || r.replyType == .directReplyError)) {
             let tmp = NSData(bytes: report, length: report.count)
-            r.data = tmp.subdataWithRange(NSRange(location: 3, length: report.count - 3))
+            r.data = tmp.subdata(with: NSRange(location: 3, length: report.count - 3)) as NSData?
         }
-        else if (r.replyType != nil && (r.replyType == .SystemReply || r.replyType == .SystemReplyError )){
+        else if (r.replyType != nil && (r.replyType == .systemReply || r.replyType == .systemReplyError )){
             if let oc = SystemOpcode(rawValue: report[3]){
                 r.systemCommand = oc
             }
@@ -72,7 +68,7 @@ class Ev3ResponseManager {
             }
             
             let tmp = NSData(bytes: report, length: report.count)
-            r.data = tmp.subdataWithRange(NSRange(location: 5, length: report.count - 5))
+            r.data = tmp.subdata(with: NSRange(location: 5, length: report.count - 5)) as NSData?
     
         }
         

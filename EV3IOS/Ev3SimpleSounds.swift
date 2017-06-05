@@ -12,12 +12,12 @@ public class Ev3SimpleSounds {
 
 
     public static func appendSimpleStartupSound(command: Ev3Command, volume: UInt8){
-        command.playTone(volume, frequency: 262, duration: 150)
+        command.playTone(volume: volume, frequency: 262, duration: 150)
         command.soundReady()
-        command.playTone(volume, frequency: 330, duration: 150)
+        command.playTone(volume: volume, frequency: 330, duration: 150)
         command.soundReady()
-        command.playTone(volume, frequency: 392, duration: 150)
+        command.playTone(volume: volume, frequency: 392, duration: 150)
         command.soundReady()
-        command.playTone(volume, frequency: 523, duration: 300)
+        command.playTone(volume: volume, frequency: 523, duration: 300)
     }
 }

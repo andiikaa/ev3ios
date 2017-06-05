@@ -13,11 +13,11 @@ public class Ev3Command {
     var brick: Ev3Brick?
     
     var commandType: CommandType?
-    var buffer: NSMutableData?
+    var buffer: NSMutableData = NSMutableData()
     var response: Ev3Response?
     
     convenience init(brick: Ev3Brick) {
-        self.init(commandType: CommandType.DirectNoReply)
+        self.init(commandType: CommandType.directNoReply)
         self.brick = brick
     }
     
@@ -26,7 +26,7 @@ public class Ev3Command {
     }
     
     init(commandType: CommandType, globalSize: UInt16, localSize: Int){
-        initialize(commandType, globalSize: globalSize, localSize: localSize)
+        initialize(commandType: commandType, globalSize: globalSize, localSize: localSize)
     }
     
     /**
@@ -39,97 +39,97 @@ public class Ev3Command {
      */
     public func initialize(commandType: CommandType, globalSize: UInt16, localSize: Int){
         self.commandType = commandType
-        buffer = NSMutableData()
         
-        response = Ev3ResponseManager.createResponse();
+        let response = Ev3ResponseManager.createResponse()
+        self.response = response
         
         // 2 bytes (this gets filled in later when the user calls toBytes()
-        buffer!.appendUInt16(0xffff)
+        buffer.appendUInt16(value: 0xffff)
         
-        print("created sequence: \(response!.sequence!)")
+        print("created sequence: \(response.sequence)")
         
         // 2 bytes
-        buffer!.appendUInt16LE(response!.sequence!)
+        buffer.appendUInt16LE(value: response.sequence)
         
         // 1 byte
-        buffer!.appendUInt8(commandType.rawValue)
+        buffer.appendUInt8(value: commandType.rawValue)
         
-        if(commandType == CommandType.DirectReply || commandType == CommandType.DirectNoReply){
+        if(commandType == CommandType.directReply || commandType == CommandType.directNoReply){
             // 2 bytes (llllllgg gggggggg)
             
             //lower bits of global size
-            buffer!.appendUInt8(UInt8(globalSize))
+            buffer.appendUInt8(value: UInt8(globalSize))
             
             // upper bits of globalSize + localSize
-            buffer!.appendUInt8(UInt8(localSize << 2 | Int((globalSize >> 8) & 0x03)))
+            buffer.appendUInt8(value: UInt8(localSize << 2 | Int((globalSize >> 8) & 0x03)))
         }
     }
     
     public func initialize(commandType: CommandType) {
-        initialize(commandType, globalSize: 0, localSize: 0);
+        initialize(commandType: commandType, globalSize: 0, localSize: 0);
     }
     
-    func addParameter(parameter: UInt8){
-        buffer!.appendUInt8(ArgumentSize.Byte.rawValue)
-        buffer!.appendUInt8(parameter)
+    func addParameter(_ parameter: UInt8){
+        buffer.appendUInt8(value: ArgumentSize.byte.rawValue)
+        buffer.appendUInt8(value: parameter)
     }
     
-    func addParameter(parameter: Int16) {
-        buffer?.appendUInt8(ArgumentSize.Short.rawValue)
-        buffer?.appendInt16LE(parameter)
+    func addParameter(_ parameter: Int16) {
+        buffer.appendUInt8(value: ArgumentSize.short.rawValue)
+        buffer.appendInt16LE(value: parameter)
     }
     
-    func addParameter(parameter: UInt16) {
-        buffer?.appendUInt8(ArgumentSize.Short.rawValue)
-        buffer?.appendUInt16LE(parameter)
+    func addParameter(_ parameter: UInt16) {
+        buffer.appendUInt8(value: ArgumentSize.short.rawValue)
+        buffer.appendUInt16LE(value: parameter)
     }
     
-    func addParameter(parameter: UInt32) {
-        buffer?.appendUInt8(ArgumentSize.Int.rawValue)
-        buffer?.appendUInt32LE(parameter)
+    func addParameter(_ parameter: UInt32) {
+        buffer.appendUInt8(value: ArgumentSize.int.rawValue)
+        buffer.appendUInt32LE(value: parameter)
     }
     
-    func addParameter(s: String){
+    func addParameter(_ s: String){
         // 0x84 = long format, null terminated string
-        buffer?.appendUInt8(ArgumentSize.String.rawValue)        
+        buffer.appendUInt8(value: ArgumentSize.string.rawValue)
         let bytes: [UInt8] = [UInt8](s.utf8)
-        buffer?.appendBytes(bytes, length: bytes.count)     
-        buffer?.appendUInt8(0x00)
+        buffer.append(bytes, length: bytes.count)
+        buffer.appendUInt8(value: 0x00)
     }
     
-    func addGlobalIndex(index: UInt8) {
+    func addGlobalIndex(_ index: UInt8) {
         // 0xe1 = global index, long format, 1 byte
-        buffer!.appendUInt8(0xe1);
-        buffer!.appendUInt8(index);
+        buffer.appendUInt8(value: 0xe1);
+        buffer.appendUInt8(value: index);
     }
     
-    func addOpcode(opcode: Opcode) {
+    func addOpcode(_ opcode: Opcode) {
         // 1 or 2 bytes (opcode + subcmd, if applicable)
         // I combined opcode + sub into ushort where applicable, so we need to pull them back apart here
         
-        if opcode.rawValue > Opcode.Tst.rawValue {
-            buffer!.appendUInt8(UInt8(opcode.rawValue >> 8))
+        if opcode.rawValue > Opcode.tst.rawValue {
+            buffer.appendUInt8(value: UInt8(opcode.rawValue >> 8))
         }
-        buffer!.appendUInt8(UInt8(opcode.rawValue & 0x00ff))
+        buffer.appendUInt8(value: UInt8(opcode.rawValue & 0x00ff))
     }
     
     func toBytes() -> NSData
     {
         // size of data, not including the 2 size bytes
-        let size = UInt32(buffer!.length - 2)
+        let size = UInt32(buffer.length - 2)
         
-        let byteArray = ByteTools.uint32ToUint8Array(size)
+        let byteArray = ByteTools.uint32ToUint8Array(value: size)
     
         var msb = UInt8(byteArray[2])
         var lsb = UInt8(byteArray[3])
     
         // little-endian
-        buffer!.replaceBytesInRange(NSRange(location: 0, length: 1), withBytes: &lsb)
-        buffer!.replaceBytesInRange(NSRange(location: 1, length: 1), withBytes: &msb)
+        buffer.replaceBytes(in: NSRange(location: 0, length: 1), withBytes: &lsb)
+        buffer.replaceBytes(in: NSRange(location: 1, length: 1), withBytes: &msb)
 
         //TODO is a copy needed if commands executed asyn?
         //return NSData(bytes: buffer!.bytes, length: buffer!.length)
-        return buffer!
+        return buffer
     }
     
     /**
@@ -139,7 +139,7 @@ public class Ev3Command {
      - parameter ledPattern: The LED pattern to display.
      */
     public func setLedPattern(ledPattern: LedPattern) {
-        addOpcode(Opcode.UIWrite_LED)
+        addOpcode(Opcode.uiWrite_LED)
         addParameter(ledPattern.rawValue)
     }
     
@@ -151,10 +151,10 @@ public class Ev3Command {
      - parameter power: only values between -100 and 100
      */
     public func turnMotorAtPower(ports: OutputPort, power: Int16) {
-        addOpcode(Opcode.OutputPower)
+        addOpcode(Opcode.outputPower)
         addParameter(UInt8(0x00))       // layer
         addParameter(ports.rawValue)	// ports
-        let pwr = ByteTools.firstByteOfInt16(power)
+        let pwr = ByteTools.firstByteOfInt16(value: power)
         addParameter(pwr)      // power
     }
     
@@ -166,10 +166,10 @@ public class Ev3Command {
      - parameter speed: The speed to applay to the specified motors (-100% to 100%)
      */
     public func turnMotorAtSpeed(ports: OutputPort, speed: Int16){
-        addOpcode(Opcode.OutputSpeed)
+        addOpcode(Opcode.outputSpeed)
         addParameter(UInt8(0x00))
         addParameter(ports.rawValue)
-        let sp = ByteTools.firstByteOfInt16(speed)
+        let sp = ByteTools.firstByteOfInt16(value: speed)
         addParameter(sp)
     }
     
@@ -183,7 +183,7 @@ public class Ev3Command {
      - parameter brake: apply brake to motor(s) at the end of routine
      */
     public func stepMotorAtSpeed(ports: OutputPort, speed: Int16, steps: UInt32, brake: Bool){
-        stepMotorAtSpeed(ports, speed: speed, rampUpSteps: 0, constantSteps: steps,
+        stepMotorAtSpeed(ports: ports, speed: speed, rampUpSteps: 0, constantSteps: steps,
                          rampDownSteps: 0, brake: brake)
     }
     
@@ -199,10 +199,10 @@ public class Ev3Command {
      - parameter brake: apply brake to motor(s) at the end of routine
      */
     public func stepMotorAtSpeed(ports: OutputPort, speed: Int16, rampUpSteps: UInt32, constantSteps: UInt32, rampDownSteps: UInt32, brake: Bool){
-        addOpcode(Opcode.OutputStepSpeed)
+        addOpcode(Opcode.outputStepSpeed)
         addParameter(UInt8(0x00))
         addParameter(ports.rawValue)
-        let sp = ByteTools.firstByteOfInt16(speed)
+        let sp = ByteTools.firstByteOfInt16(value: speed)
         addParameter(sp)
         addParameter(rampUpSteps)
         addParameter(constantSteps)
@@ -218,7 +218,7 @@ public class Ev3Command {
      - parameter brake: Apply brake to motor at end of routine
      */
     public func stepMotorAtPower(ports: OutputPort, power: Int16, steps: UInt32, brake: Bool){
-        stepMotorAtPower(ports, power: power, rampUpSteps: 0, constantSteps: steps, rampDownSteps: 10, brake: brake)        
+        stepMotorAtPower(ports: ports, power: power, rampUpSteps: 0, constantSteps: steps, rampDownSteps: 10, brake: brake)        
     }
     
     /**
@@ -231,10 +231,10 @@ public class Ev3Command {
      - parameter brake: Apply brake to motor at end of routine
      */
     public func stepMotorAtPower(ports: OutputPort, power: Int16, rampUpSteps: UInt32, constantSteps: UInt32, rampDownSteps: UInt32, brake: Bool){
-        addOpcode(Opcode.OutputStepPower)
+        addOpcode(Opcode.outputStepPower)
         addParameter(UInt8(0x00))
         addParameter(ports.rawValue)
-        let pwr = ByteTools.firstByteOfInt16(power)
+        let pwr = ByteTools.firstByteOfInt16(value: power)
         addParameter(pwr)
         addParameter(rampUpSteps)
         addParameter(constantSteps)
@@ -262,10 +262,10 @@ public class Ev3Command {
      
      */
     public func stepMotorSync(ports: OutputPort, speed: Int16, turnRatio: Int16, step: UInt32, brake: Bool){
-        addOpcode(Opcode.OutputStepSync)
+        addOpcode(Opcode.outputStepSync)
         addParameter(UInt8(0x00))
         addParameter(ports.rawValue)
-        let sp = ByteTools.firstByteOfInt16(speed)
+        let sp = ByteTools.firstByteOfInt16(value: speed)
         addParameter(sp)
         addParameter(turnRatio)
         addParameter(step)
@@ -281,7 +281,7 @@ public class Ev3Command {
      - parameter brake: apply brake to motor at end of routine
      */
     public func turnMotorAtSpeedForTime(ports: OutputPort, speed: Int16, milliseconds: UInt32, brake: Bool){
-        turnMotorAtSpeedForTime(ports, speed: speed, msRampUp: 0, msConstant: milliseconds, msRampDown: 0, brake: brake)
+        turnMotorAtSpeedForTime(ports: ports, speed: speed, msRampUp: 0, msConstant: milliseconds, msRampDown: 0, brake: brake)
     }
     
     /**
@@ -295,10 +295,10 @@ public class Ev3Command {
      - parameter brake: apply brake to motor at end of routine
      */
     public func turnMotorAtSpeedForTime(ports: OutputPort, speed: Int16, msRampUp: UInt32, msConstant: UInt32, msRampDown: UInt32, brake: Bool){
-        addOpcode(Opcode.OutputTimeSpeed)
+        addOpcode(Opcode.outputTimeSpeed)
         addParameter(UInt8(0x00))
         addParameter(ports.rawValue)
-        let sp = ByteTools.firstByteOfInt16(speed)
+        let sp = ByteTools.firstByteOfInt16(value: speed)
         addParameter(sp)
         addParameter(msRampUp)
         addParameter(msConstant)
@@ -325,10 +325,10 @@ public class Ev3Command {
      - parameter brake: brake or coast at the end
      */
     public func timeMotorSync(ports: OutputPort, speed: Int16, turnRatio: Int16, time: UInt32, brake: Bool){
-        addOpcode(Opcode.OutputTimeSync)
+        addOpcode(Opcode.outputTimeSync)
         addParameter(UInt8(0x00))
         addParameter(ports.rawValue)
-        let sp = ByteTools.firstByteOfInt16(speed)
+        let sp = ByteTools.firstByteOfInt16(value: speed)
         addParameter(sp)
         addParameter(turnRatio)
         addParameter(time)
@@ -339,7 +339,7 @@ public class Ev3Command {
      Clears the tacho count used as sensor input.
      */
     public func clearCount(ports: OutputPort){
-        addOpcode(Opcode.OutputClearCount)
+        addOpcode(Opcode.outputClearCount)
         addParameter(UInt8(0x00))
         addParameter(ports.rawValue)
     }
@@ -352,7 +352,7 @@ public class Ev3Command {
 
     */
     public func startMotor(ports: OutputPort) {
-        addOpcode(Opcode.OutputStart)
+        addOpcode(Opcode.outputStart)
         addParameter(UInt8(0x00))             // layer
         addParameter(ports.rawValue)   // ports
     }
@@ -365,7 +365,7 @@ public class Ev3Command {
      - parameter brake: Apply the brake at the end of the command
      */
     public func stopMotor(ports: OutputPort, brake: Bool) {
-        addOpcode(Opcode.OutputStop)
+        addOpcode(Opcode.outputStop)
         addParameter(UInt8(0x00))                 // layer
         addParameter(ports.rawValue)       // ports
         addParameter(UInt8(brake ? 0x01 : 0x00))	// brake (0 = coast, 1 = brake)
@@ -382,7 +382,7 @@ public class Ev3Command {
      
      */
     public func getFirwmareVersion(maxLength: UInt8, index: UInt32) {
-        addOpcode(Opcode.UIRead_GetFirmware)
+        addOpcode(Opcode.uiRead_GetFirmware)
         addParameter(maxLength)		// global buffer size
         addGlobalIndex(UInt8(index))   // index where buffer begins
     }
@@ -395,7 +395,7 @@ public class Ev3Command {
                         ATTENTION: Index cannot be greater than 1024
      */
     public func isBrickButtonPressed(button: BrickButton, index: Int) {
-        addOpcode(Opcode.UIButton_Pressed)
+        addOpcode(Opcode.uiButton_Pressed)
         addParameter(UInt8(button.rawValue))
         addGlobalIndex(UInt8(index))
     }
@@ -408,7 +408,7 @@ public class Ev3Command {
      - parameter modeIndex: The index to hold the Mode value in the global buffer. Index for Mode cannot be greater than 1024
     */
     public func getTypeMode(port: InputPort, typeIndex: Int, modeIndex: Int) {
-        addOpcode(Opcode.InputDevice_GetTypeMode)
+        addOpcode(Opcode.inputDevice_GetTypeMode)
         addParameter(UInt8(0x00))                 // layer
         addParameter(port.rawValue)       // port
         addGlobalIndex(UInt8(typeIndex))	// index for type
@@ -423,7 +423,7 @@ public class Ev3Command {
      - parameter index: The index to hold the return value in the global buffer. Index cannot be greater than 1024
      */
     public func readySI(port: InputPort, mode: UInt8, index: Int) {
-        addOpcode(Opcode.InputDevice_ReadySI)
+        addOpcode(Opcode.inputDevice_ReadySI)
         addParameter(UInt8(0x00))                  // layer
         addParameter(port.rawValue)         // port
         addParameter(UInt8(0x00))                  // type
@@ -440,7 +440,7 @@ public class Ev3Command {
      - parameter index: The index in the global buffer to hold the return value. Index cannot be greater than 1024.
      */
     public func readyRaw(port: InputPort, mode: UInt8, index: Int){
-        addOpcode(Opcode.InputDevice_ReadyRaw)
+        addOpcode(Opcode.inputDevice_ReadyRaw)
         addParameter(UInt8(0x00))				// layer
         addParameter(port.rawValue)		// port
         addParameter(UInt8(0x00))				// type
@@ -457,7 +457,7 @@ public class Ev3Command {
      - parameter index: The index in the global buffer to hold the return value. Index cannot be greater than 1024.
      */
     public func readyPercent(port: InputPort, mode: UInt8, index: Int) {
-        addOpcode(Opcode.InputDevice_ReadyPct)
+        addOpcode(Opcode.inputDevice_ReadyPct)
         addParameter(UInt8(0x00))                 // layer
         addParameter(port.rawValue)		// port
         addParameter(UInt8(0x00))                 // type
@@ -475,7 +475,7 @@ public class Ev3Command {
     - parameter duration: Duration of the tone in milliseconds
      */
     public func playTone(volume: UInt8, frequency: UInt16, duration: UInt16) {
-        addOpcode(Opcode.Sound_Tone)
+        addOpcode(Opcode.sound_Tone)
         addParameter(volume)        // volume
         addParameter(frequency)     // frequency
         addParameter(duration)      // duration (ms)
@@ -488,7 +488,7 @@ public class Ev3Command {
     - parameter filename: Filename on the Brick of the sound to play
      */
     public func playSound(volume: UInt8, filename: String){
-        addOpcode(Opcode.Sound_Play)
+        addOpcode(Opcode.sound_Play)
         addParameter(volume)
         addParameter(filename)
     }
@@ -497,13 +497,13 @@ public class Ev3Command {
      Waits till sound is ready (waits for completion)
      */
     public func soundReady(){
-        addOpcode(Opcode.Sound_Ready)
+        addOpcode(Opcode.sound_Ready)
     }
     
     /// sends the command to the brick
     public func sendCommand() -> NSData?{
         brick?.sendCommand(self)
-        initialize(CommandType.DirectNoReply)
+        initialize(commandType: CommandType.directNoReply)
         return response?.data
     }
     
@@ -515,7 +515,7 @@ public class Ev3Command {
     - parameter index: Index to the position of the returned data in the global buffer. Max. 1024
      */
     public func getDeviceName(port: InputPort, bufferSize: Int, index: Int) {
-        addOpcode(Opcode.InputDevice_GetDeviceName)
+        addOpcode(Opcode.inputDevice_GetDeviceName)
         addParameter(UInt8(0x00))
         addParameter(port.rawValue)
         addParameter(UInt8(bufferSize))
@@ -528,7 +528,7 @@ public class Ev3Command {
      returns level 0-100 (8 bit)
     */
     public func getBatteryLevel(index: Int){
-        addOpcode(Opcode.UIRead_GetLBatt)
+        addOpcode(Opcode.uiRead_GetLBatt)
         addGlobalIndex(UInt8(index))
     }
     
@@ -536,7 +536,7 @@ public class Ev3Command {
      Appends the get battery voltage command to an existing command object
      */
     public func getBatteryVoltage(index: Int){
-        addOpcode(Opcode.UIRead_GetVBatt)
+        addOpcode(Opcode.uiRead_GetVBatt)
         addGlobalIndex(UInt8(index))
     }
     
@@ -544,8 +544,8 @@ public class Ev3Command {
      Appends the program_start command.
      */
     public func programStart(programId: UInt16, filename: String, sizeIndex: Int, ipIndex: Int, debug: Bool){
-        loadImage(programId, name: filename, sizeIndex: sizeIndex, ipIndex: ipIndex)
-        addOpcode(Opcode.ProgramStart)
+        loadImage(id: programId, name: filename, sizeIndex: sizeIndex, ipIndex: ipIndex)
+        addOpcode(Opcode.programStart)
         addParameter(programId) // program id slot
         addGlobalIndex(UInt8(sizeIndex)) // size offset
         addGlobalIndex(UInt8(ipIndex))  // ip offset
@@ -568,7 +568,7 @@ public class Ev3Command {
      - (Data32) *IP - address of image
      */
     public func loadImage(id: UInt16, name: String, sizeIndex: Int, ipIndex: Int){
-        addOpcode(Opcode.File_LoadImage)
+        addOpcode(Opcode.file_LoadImage)
         addParameter(id)
         addParameter(name)
         addGlobalIndex(UInt8(sizeIndex))
@@ -579,7 +579,7 @@ public class Ev3Command {
      Enables program execution to wait for output ready. (Wait for completion)
      */
     public func outputReady(ports: OutputPort){
-        addOpcode(Opcode.OutputReady)
+        addOpcode(Opcode.outputReady)
         addParameter(UInt8(ports.rawValue))
     }
     
@@ -588,7 +588,7 @@ public class Ev3Command {
      use outputReady() immediatly after this function.
      */
     public func outputSetType(ports: OutputPort, type: DeviceType){
-        addOpcode(Opcode.OutputSetType)
+        addOpcode(Opcode.outputSetType)
         addParameter(UInt8(0x00))
         addParameter(ports.rawValue)
         addParameter(type.rawValue)
