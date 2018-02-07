@@ -79,21 +79,20 @@ public class Ev3Connection : NSObject, StreamDelegate {
             return
         }
         
-        let session = EASession(accessory: self.accessory, forProtocol: Ev3Constants.supportedProtocol)
-        self.session = session
-        
-        session.outputStream?.delegate = self
-        session.outputStream?.schedule(in: RunLoop.main, forMode: RunLoopMode.commonModes)
-        session.outputStream?.open()
-        
-        session.inputStream?.delegate = self
-        session.inputStream?.schedule(in: RunLoop.main, forMode: RunLoopMode.commonModes)
-        session.inputStream?.open()
-        
-        isClosed = false
-        
-        for del in self.connectionChangedDelegates{
-            del.ev3ConnectionChanged(connected: true)
+        if let session = EASession(accessory: self.accessory, forProtocol: Ev3Constants.supportedProtocol) {
+            self.session = session
+            
+            session.outputStream?.delegate = self
+            session.outputStream?.schedule(in: RunLoop.main, forMode: RunLoopMode.commonModes)
+            session.outputStream?.open()
+            
+            session.inputStream?.delegate = self
+            session.inputStream?.schedule(in: RunLoop.main, forMode: RunLoopMode.commonModes)
+            session.inputStream?.open()
+            isClosed = false
+            for del in self.connectionChangedDelegates{
+                del.ev3ConnectionChanged(connected: true)
+            }
         }
     }
     
