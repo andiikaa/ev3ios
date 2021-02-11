@@ -95,11 +95,11 @@ public class Ev3Brick : Ev3ReportDelegate, Ev3ConnectionChangedDelegate {
         Ev3ResponseManager.handleResponse(report: report)
     }
     
-    func sendCommand(_ command: Ev3Command){
+    public func sendCommand(_ command: Ev3Command){
         connection.write(command: command)
     }
     
-    func closeConnection(){
+    public func closeConnection(){
         connection.close()
     }
     
