@@ -10,6 +10,8 @@ This SDK is a port of the more popular [BrianPeek/legoev3](https://github.com/Br
 
 - Make sure, iOS compatibility is enabled on the ev3
 
+- Add this SDK as Swift Package to your Xcode project, as described [here](https://developer.apple.com/documentation/xcode/adding_package_dependencies_to_your_app)
+
 - Add the Ev3 Protocol to the 'info.plist'
     - add row (if 'Supported external accessory protocols' not exists)
     - choose 'Supported external accessory protocols'
