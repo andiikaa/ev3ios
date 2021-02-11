@@ -64,7 +64,7 @@ public class Ev3Connection : NSObject, StreamDelegate {
     /// is available on the stream
     private var writeBuffer = Array<NSData>()
     
-    init(accessory: EAAccessory){
+    public init(accessory: EAAccessory){
         self.accessory = accessory
     }
     
@@ -74,7 +74,7 @@ public class Ev3Connection : NSObject, StreamDelegate {
     }
     
     /// open the connection before using
-    func open(){
+    public func open(){
         if !isClosed {
             return
         }
@@ -83,11 +83,11 @@ public class Ev3Connection : NSObject, StreamDelegate {
             self.session = session
             
             session.outputStream?.delegate = self
-            session.outputStream?.schedule(in: RunLoop.main, forMode: RunLoopMode.commonModes)
+            session.outputStream?.schedule(in: RunLoop.main, forMode: RunLoop.Mode.common)
             session.outputStream?.open()
             
             session.inputStream?.delegate = self
-            session.inputStream?.schedule(in: RunLoop.main, forMode: RunLoopMode.commonModes)
+            session.inputStream?.schedule(in: RunLoop.main, forMode: RunLoop.Mode.common)
             session.inputStream?.open()
             isClosed = false
             for del in self.connectionChangedDelegates{
@@ -107,7 +107,7 @@ public class Ev3Connection : NSObject, StreamDelegate {
     }
     
     /// close the connection after use
-    func close(){
+    public func close(){
         if isClosed {
             return
         }
@@ -117,11 +117,11 @@ public class Ev3Connection : NSObject, StreamDelegate {
         }
         
         session?.outputStream?.close()
-        session?.outputStream?.remove(from: RunLoop.main, forMode: RunLoopMode.defaultRunLoopMode)
+        session?.outputStream?.remove(from: RunLoop.main, forMode: RunLoop.Mode.default)
         session?.outputStream?.delegate = nil
         
         session?.inputStream?.close()
-        session?.inputStream?.remove(from: RunLoop.main, forMode: RunLoopMode.defaultRunLoopMode)
+        session?.inputStream?.remove(from: RunLoop.main, forMode: RunLoop.Mode.default)
         session?.inputStream?.delegate = nil
         
         isClosed = true

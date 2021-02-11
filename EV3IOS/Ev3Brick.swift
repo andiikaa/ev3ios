@@ -43,14 +43,14 @@ public class Ev3Brick : Ev3ReportDelegate, Ev3ConnectionChangedDelegate {
     
     let responseSize = 11
 
-    convenience init(connection: Ev3Connection){
+    public convenience init(connection: Ev3Connection){
         self.init(connection: connection, alwaysSendEvents: false)
     }
     
     /// Constructor
     /// - parameter comm: Object implementing the Ev3Connection interface for talking to the brick
     /// - parameter alwaysSendEvents: Send events when data changes, or at every poll
-    init(connection: Ev3Connection, alwaysSendEvents: Bool){
+    public init(connection: Ev3Connection, alwaysSendEvents: Bool){
         self.connection = connection
         self.alwaysSendEvents = alwaysSendEvents
         buttons = BrickButtons()
