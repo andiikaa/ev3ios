@@ -1,5 +1,7 @@
 # EV3 iOS SDK
 
+![build status](https://https://github.com/andiikaa/ev3ios/actions/workflows/swift.yml/badge.svg?branch=master)
+
 The EV3 iOS SDK makes it possible to send commands from an iOS device to an Lego Ev3 robot. 
 At the moment only bluetooth connections are supported, but it should be also possible to 
 extend the SDK to a wifi connection feature. The SDK uses the offical lego connection protocol, so there is no need to flash a new firmare such as [leJOS](http://www.lejos.org/). We tested this implementation with the original firmware from 1.06h to 1.08h.
