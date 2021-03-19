@@ -194,7 +194,7 @@ public enum InputPort : UInt8
     case d	= 0x13
     
     /// makes it possible to loop over this enum as swift provides no functionality for this yet
-    static let allValues = [one, two, three, four, a, b, c, d]
+    public static let allValues = [one, two, three, four, a, b, c, d]
 }
 
 
@@ -208,18 +208,18 @@ public struct OutputPort : OptionSet {
     public static let A = OutputPort(rawValue: 0x01)
 
     /// Port B
-    static let B = OutputPort(rawValue: 0x02)
+    public static let B = OutputPort(rawValue: 0x02)
 
  
     /// Port C
-    static let C = OutputPort(rawValue: 0x04)
+    public static let C = OutputPort(rawValue: 0x04)
 
 
     /// Port D
-    static let D = OutputPort(rawValue: 0x08)
+    public static let D = OutputPort(rawValue: 0x08)
 
     /// Ports A,B,C and D simultaneously
-    static let All = OutputPort(rawValue: 0x0f)
+    public static let All = OutputPort(rawValue: 0x0f)
 }
 
 /// List of devices which can be recognized as input or output devices

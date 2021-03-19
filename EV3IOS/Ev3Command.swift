@@ -16,16 +16,16 @@ public class Ev3Command {
     var buffer: NSMutableData = NSMutableData()
     var response: Ev3Response?
     
-    convenience init(brick: Ev3Brick) {
+    public convenience init(brick: Ev3Brick) {
         self.init(commandType: CommandType.directNoReply)
         self.brick = brick
     }
     
-    convenience init(commandType: CommandType){
+    public convenience init(commandType: CommandType){
         self.init(commandType: commandType, globalSize: 0, localSize: 0)
     }
     
-    init(commandType: CommandType, globalSize: UInt16, localSize: Int){
+    public init(commandType: CommandType, globalSize: UInt16, localSize: Int){
         initialize(commandType: commandType, globalSize: globalSize, localSize: localSize)
     }
     
