@@ -29,18 +29,18 @@ To optain a 'EAAccessory' you can access the 'EAAccessoryManager' and loop over 
 Register to notifications if a bt device has connected or disconnected. Connect or disconnect is handled in 
 'accessoryConnected' and 'accessoryDisconnected' (further down).
 ```swift
-NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(accessoryConnected), name: EAAccessoryDidConnectNotification, object: nil)
-NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(accessoryDisconnected), name: EAAccessoryDidDisconnectNotification, object: nil)
-EAAccessoryManager.sharedAccessoryManager().registerForLocalNotifications()
+NotificationCenter.default.addObserver(self, selector: #selector(accessoryConnected), name: NSNotification.Name.EAAccessoryDidConnect, object: nil)
+NotificationCenter.default.addObserver(self, selector: #selector(accessoryDisconnected), name: NSNotification.Name.EAAccessoryDidDisconnect, object: nil)
+EAAccessoryManager.shared().registerForLocalNotifications()
 ```
 
 
 Shows the connect dialog, to force the ios device to connect to a bt device, which is in range.
 So the user does not have to go to the bluetooth settings.
 ```swift
-EAAccessoryManager.sharedAccessoryManager().showBluetoothAccessoryPickerWithNameFilter(nil, completion: {(error: NSError?) in
-// handle error
-})
+EAAccessoryManager.shared().showBluetoothAccessoryPicker(withNameFilter: nil) { error in
+    // handle error
+}
 ```
 
 In case a accessory has connected to the iOS device.
@@ -50,12 +50,12 @@ In case a accessory has connected to the iOS device.
 
     let connectedAccessory = notification.userInfo![EAAccessoryKey] as! EAAccessory
 
-    // check if the device is a ev3    
-    if !Ev3Connection.supportsEv3Protocol(connectedAccessory) {
+    // check if the device is a ev3
+    if !Ev3Connection.supportsEv3Protocol(accessory: connectedAccessory) {
         return
     }
 
-    connect(connectedAccessory)
+    connect(accessory: connectedAccessory)
 }
 ``` 
 
@@ -66,7 +66,7 @@ In case a accessory has disconnected from the iOS device.
     let connectedAccessory = notification.userInfo![EAAccessoryKey] as! EAAccessory
 
     // check if the device is a ev3
-    if !Ev3Connection.supportsEv3Protocol(connectedAccessory) {
+    if !Ev3Connection.supportsEv3Protocol(accessory: connectedAccessory) {
         return
     }
 
@@ -77,11 +77,11 @@ In case a accessory has disconnected from the iOS device.
 In case, the EV3 is already connected to the iOS device just loop over the connected 'EAAccessory'
 ```swift
 private func getEv3Accessory() -> EAAccessory? {
-    let man = EAAccessoryManager.sharedAccessoryManager()
+    let man = EAAccessoryManager.shared()
     let connected = man.connectedAccessories
 
     for tmpAccessory in connected{
-        if Ev3Connection.supportsEv3Protocol(tmpAccessory){
+        if Ev3Connection.supportsEv3Protocol(accessory: tmpAccessory){
             return tmpAccessory
         }
     }
